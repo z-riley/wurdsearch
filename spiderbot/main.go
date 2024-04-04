@@ -11,21 +11,21 @@ import (
 )
 
 func main() {
-	baseUrl := "http://reddit.com/"
-	url, _ := url.Parse(baseUrl)
-
-	fmt.Println(url)
+	baseUrl := "http://levenue.com/"
+	baseUrlParsed, err := url.Parse(baseUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	resp, err := http.Get(baseUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer resp.Body.Close()
-	extractLinks(resp.Body)
-
+	extractLinks(resp.Body, baseUrlParsed)
 }
 
-func extractLinks(body io.Reader) []string {
+func extractLinks(body io.Reader, baseUrl *url.URL) []string {
 	links := []string{}
 	z := html.NewTokenizer(body)
 
@@ -39,9 +39,15 @@ func extractLinks(body io.Reader) []string {
 			if token.Data == "a" {
 				for _, attr := range token.Attr {
 					if attr.Key == "href" {
-						fmt.Println(attr.Val)
-						// FIXME: add base url to relative links
-						// https://chat.openai.com/c/dc27d85c-002b-47b5-a188-ad68cebae341
+						link, err := url.Parse(attr.Val)
+						if err != nil {
+							log.Fatal(err)
+							continue
+						}
+						// Turn relative links into absolute links
+						absoluteLink := baseUrl.ResolveReference(link)
+						fmt.Println(absoluteLink)
+
 					}
 				}
 			}
