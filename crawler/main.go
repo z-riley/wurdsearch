@@ -4,20 +4,30 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"net/url"
+	"time"
 
 	"golang.org/x/net/html"
 )
 
 func main() {
-	url := "https://www.levenue.com/integrations"
-	links, err := crawlPage(url)
-	if err != nil {
-		log.Fatal(err)
+	url := "https://en.wikipedia.org/wiki/Deaths_in_2024#1"
+
+	for {
+		fmt.Printf("Crawling page: %s\n", url)
+		links, err := crawlPage(url)
+		if err != nil {
+			log.Fatal(err)
+		}
+		time.Sleep(1 * time.Second)
+		fmt.Printf("Found %d links. ", len(links))
+		url = links[rand.Intn(len(links))]
+		fmt.Printf("Visiting:  %s\n", links[0])
 	}
 
-	fmt.Println(links)
+	// fmt.Println(links)
 }
 
 func crawlPage(pageUrl string) ([]string, error) {
@@ -37,7 +47,8 @@ func crawlPage(pageUrl string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("Contents of robots.txt:\n%s", string(body))
+	UNUSED(body)
+	// fmt.Printf("Contents of robots.txt:\n%s", string(body))
 
 	resp, err = http.Get(pageUrl)
 	if err != nil {
@@ -77,3 +88,5 @@ func extractLinks(body io.Reader, baseUrl *url.URL) []string {
 		}
 	}
 }
+
+func UNUSED(x ...interface{}) {}
