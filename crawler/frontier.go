@@ -5,11 +5,11 @@ import (
 )
 
 type Frontier struct {
-	Queue *goconcurrentqueue.FIFO
+	queue *goconcurrentqueue.FIFO
 }
 
 func newFrontier() *Frontier {
 	return &Frontier{
-		Queue: goconcurrentqueue.NewFIFO(),
+		queue: goconcurrentqueue.NewFIFO(),
 	}
 }

@@ -13,7 +13,7 @@ const crawlerName = "TurdSeeker"
 
 type Crawler struct {
 	frontier *Frontier // queue of links to visit next
-	db       Storer
+	db       Storer    // database abstraction
 }
 
 func newCrawler() (*Crawler, error) {
@@ -55,10 +55,9 @@ func (c *Crawler) crawlPage(url *url.URL) error {
 	if err != nil {
 		return err
 	}
-	UNUSED(data)
 
 	// 5. Put the contents in DB
-	c.db.StorePlaceholder(0)
+	c.db.StorePlaceholder(data.links)
 
 	return nil
 }
