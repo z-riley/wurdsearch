@@ -2,7 +2,6 @@ package main
 
 import (
 	"io"
-	"log"
 	"net/url"
 
 	"golang.org/x/net/html"
@@ -34,7 +33,7 @@ func extractLinks(body io.Reader, baseUrl *url.URL) []string {
 					if attr.Key == "href" {
 						link, err := url.Parse(attr.Val)
 						if err != nil {
-							log.Fatal(err)
+							log.Fatal().Err(err)
 							continue
 						}
 						// Turn relative links into absolute links
