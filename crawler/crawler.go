@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/jimsmart/grobotstxt"
 )
@@ -12,16 +13,23 @@ import (
 const crawlerName = "TurdSeeker"
 
 type Crawler struct {
-	frontier *Frontier // queue of links to visit next
-	db       Storer    // database abstraction
+	frontier *frontier // queue of links to visit next
+	db       *storage  // database abstraction
 }
 
 func newCrawler() (*Crawler, error) {
 
-	return &Crawler{
+	db, err := newMongoDBConn()
+	if err != nil {
+		log.Fatal().Err(err)
+	}
+
+	c := &Crawler{
 		frontier: newFrontier(),
-		db:       newStore(),
-	}, nil
+		db:       db,
+	}
+
+	return c, nil
 }
 
 func (c *Crawler) crawlForever() error {
@@ -46,13 +54,12 @@ func (c *Crawler) crawlForever() error {
 		if err != nil {
 			return err
 		}
-		fmt.Print("Data:")
-		fmt.Println(data)
+		fmt.Printf("Data: %+v\n", data)
 
 		// 3. Put new links into frontier
 
 		// 4. Save page data in DB
-		c.db.StorePlaceholder(data.links)
+		// c.db.StorePlaceholder(data.links)
 
 	}
 }
@@ -77,6 +84,7 @@ func (c *Crawler) crawlPage(url *url.URL) (pageData, error) {
 	}
 
 	// 3. Visit page
+	timeAccessed := time.Now()
 	resp, err = http.Get(url.String())
 	if err != nil {
 		return pageData{}, err
@@ -84,7 +92,7 @@ func (c *Crawler) crawlPage(url *url.URL) (pageData, error) {
 	defer resp.Body.Close()
 
 	//  4. Parse page contents
-	data, err := parsePage(resp.Body, url)
+	data, err := parsePage(resp.Body, url, timeAccessed)
 	if err != nil {
 		return pageData{}, err
 	}
@@ -94,4 +102,8 @@ func (c *Crawler) crawlPage(url *url.URL) (pageData, error) {
 
 func checkPageAllowed(robotsTxt, url string) bool {
 	return grobotstxt.AgentAllowed(robotsTxt, crawlerName, url)
+}
+
+func (c *Crawler) destroy() {
+	c.db.destroy()
 }
