@@ -8,19 +8,12 @@ import (
 	"golang.org/x/net/html"
 )
 
-type pageData struct {
-	url          string    `bson:"url"`
-	lastAccessed time.Time `bson:"lastAccessed"`
-	links        []string  `bson:"links"`
-	content      string    `bson:"content"`
-}
-
 func parsePage(body io.Reader, url *url.URL, timeAccessed time.Time) (pageData, error) {
 	return pageData{
-		url:          url.String(),
-		lastAccessed: timeAccessed,
-		links:        extractLinks(body, url),
-		content:      extractContent(body),
+		Url:          url.String(),
+		LastAccessed: timeAccessed,
+		Links:        extractLinks(body, url),
+		Content:      extractContent(body),
 	}, nil
 }
 
