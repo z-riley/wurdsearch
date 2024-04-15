@@ -4,12 +4,12 @@ import (
 	"github.com/enriquebris/goconcurrentqueue"
 )
 
-type Frontier struct {
+type frontier struct {
 	queue *goconcurrentqueue.FIFO
 }
 
-func newFrontier() *Frontier {
-	return &Frontier{
+func newFrontier() *frontier {
+	return &frontier{
 		queue: goconcurrentqueue.NewFIFO(),
 	}
 }

@@ -3,17 +3,24 @@ package main
 import (
 	"io"
 	"net/url"
+	"time"
 
 	"golang.org/x/net/html"
 )
 
 type pageData struct {
-	links []string
+	url          string    `bson:"url"`
+	lastAccessed time.Time `bson:"lastAccessed"`
+	links        []string  `bson:"links"`
+	content      string    `bson:"content"`
 }
 
-func parsePage(body io.Reader, url *url.URL) (pageData, error) {
+func parsePage(body io.Reader, url *url.URL, timeAccessed time.Time) (pageData, error) {
 	return pageData{
-		links: extractLinks(body, url),
+		url:          url.String(),
+		lastAccessed: timeAccessed,
+		links:        extractLinks(body, url),
+		content:      extractContent(body),
 	}, nil
 }
 
@@ -44,4 +51,8 @@ func extractLinks(body io.Reader, baseUrl *url.URL) []string {
 			}
 		}
 	}
+}
+
+func extractContent(body io.Reader) string {
+	return "example"
 }

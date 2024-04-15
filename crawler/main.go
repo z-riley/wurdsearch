@@ -17,6 +17,7 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err)
 	}
+	defer c.destroy()
 
 	// Dummy URLs for testing
 	for _, url := range []string{
