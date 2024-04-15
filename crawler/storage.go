@@ -13,7 +13,7 @@ type storage struct {
 	client *mongo.Client
 }
 
-func newMongoDBConn() (*storage, error) {
+func newStorageConn() (*storage, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
@@ -26,24 +26,14 @@ func newMongoDBConn() (*storage, error) {
 	}, nil
 }
 
-func (db *storage) connect() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			log.Fatal().Err(err)
-		}
-	}()
-}
-
-func (db *storage) insert() {
+func (db *storage) ping() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	err := db.client.Ping(ctx, readpref.Primary())
 	if err != nil {
-		log.Fatal().Err(err)
+		return err
 	}
+	return nil
 }
 
 func (db *storage) destroy() {

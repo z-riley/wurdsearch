@@ -19,7 +19,7 @@ type Crawler struct {
 
 func newCrawler() (*Crawler, error) {
 
-	db, err := newMongoDBConn()
+	db, err := newStorageConn()
 	if err != nil {
 		log.Fatal().Err(err)
 	}
