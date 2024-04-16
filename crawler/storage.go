@@ -11,8 +11,11 @@ import (
 )
 
 const (
+	databaseName          = "turdsearch"
 	crawledDataCollection = "crawled_data"
 	indexedDataCollection = "indexed_data"
+
+	requestTimeout = 3 * time.Second
 )
 
 type pageData struct {
@@ -27,7 +30,7 @@ type storage struct {
 }
 
 func newStorageConn() (*storage, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
@@ -43,7 +46,7 @@ func newStorageConn() (*storage, error) {
 	}
 
 	// Create the index
-	collection := client.Database("mytestdb").Collection(crawledDataCollection)
+	collection := client.Database(databaseName).Collection(crawledDataCollection)
 	_, err = collection.Indexes().CreateOne(ctx, model)
 	if err != nil {
 		return nil, err
@@ -55,7 +58,7 @@ func newStorageConn() (*storage, error) {
 }
 
 func (db *storage) ping() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
 	err := db.client.Ping(ctx, readpref.Primary())
@@ -67,14 +70,14 @@ func (db *storage) ping() error {
 
 // enterPageData inserts or overwrites a page data document
 func (db *storage) enterPageData(data pageData) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
 	filter := bson.M{"url": data.Url}        // match document by URL (URL is already defined as a unique index)
 	update := bson.M{"$set": data}           // set new data for the document
 	opts := options.Update().SetUpsert(true) // create a new document if one doesn't exist
 
-	collection := db.client.Database("mytestdb").Collection(crawledDataCollection)
+	collection := db.client.Database(databaseName).Collection(crawledDataCollection)
 	result, err := collection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		return err
@@ -89,23 +92,23 @@ func (db *storage) enterPageData(data pageData) error {
 	return nil
 }
 
-func (db *storage) fetchData() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+func (db *storage) fetchPageData(url string) (pageData, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
-	collection := db.client.Database("mytestdb").Collection(crawledDataCollection)
+	collection := db.client.Database(databaseName).Collection(crawledDataCollection)
 	var retrievedPageData pageData
 
-	err := collection.FindOne(ctx, bson.M{"url": "https://example.com/"}).Decode(&retrievedPageData)
+	err := collection.FindOne(ctx, bson.M{"url": url}).Decode(&retrievedPageData)
 	if err != nil {
-		return err
+		return pageData{}, err
 	}
 	log.Info().Msgf("Retrieved event date: %+v\n", retrievedPageData)
-	return nil
+	return retrievedPageData, nil
 }
 
 func (db *storage) destroy() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
 	if err := db.client.Disconnect(ctx); err != nil {
