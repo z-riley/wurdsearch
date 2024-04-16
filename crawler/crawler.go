@@ -59,7 +59,7 @@ func (c *Crawler) crawlForever() error {
 		// 3. Put new links into frontier
 
 		// 4. Save page data in DB
-		// c.db.StorePlaceholder(data.links)
+		c.db.savePageData(data)
 
 	}
 }
