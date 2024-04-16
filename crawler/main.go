@@ -3,6 +3,8 @@ package main
 import (
 	"io"
 	"os"
+	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -12,6 +14,7 @@ import (
 var log zerolog.Logger
 
 func main() {
+	setUpLogger(false)
 
 	c, err := newCrawler()
 	if err != nil {
@@ -34,8 +37,6 @@ func main() {
 
 }
 
-func UNUSED(x ...any) {}
-
 func setUpLogger(httpLogging bool) {
 	var multiWriter io.Writer
 
@@ -47,7 +48,11 @@ func setUpLogger(httpLogging bool) {
 	} else {
 		multiWriter = io.MultiWriter(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
 	}
+	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
+		return filepath.Base(file) + ":" + strconv.Itoa(line)
+	}
 
-	zerolog.TimeFieldFormat = time.RFC3339Nano
-	log = zerolog.New(multiWriter).With().Timestamp().Logger()
+	log = zerolog.New(multiWriter).With().Timestamp().Caller().Logger()
 }
+
+func UNUSED(x ...any) {}
