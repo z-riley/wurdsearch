@@ -33,13 +33,6 @@ func TestEnterPageData(t *testing.T) {
 	}
 	defer db.destroy()
 
-	// data := pageData{
-	// 	Url:          "https://example.com/",
-	// 	LastAccessed: time.Now(),
-	// 	Links:        []string{"a link", "another link"},
-	// 	Content:      "lots of content yes",
-	// }
-
 	for _, data := range []pageData{
 		{
 			Url:          "https://example.com/",
@@ -54,7 +47,7 @@ func TestEnterPageData(t *testing.T) {
 			Content:      "all my yummy content",
 		},
 	} {
-		if err := db.enterPageData(data); err != nil {
+		if err := db.savePageData(data); err != nil {
 			t.Error(err)
 		}
 	}

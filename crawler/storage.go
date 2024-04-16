@@ -68,8 +68,8 @@ func (db *storage) ping() error {
 	return nil
 }
 
-// enterPageData inserts or overwrites a page data document
-func (db *storage) enterPageData(data pageData) error {
+// savePageData inserts or overwrites a page data document
+func (db *storage) savePageData(data pageData) error {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
@@ -92,6 +92,7 @@ func (db *storage) enterPageData(data pageData) error {
 	return nil
 }
 
+// fetchPageData retrieves page data for a specified URL
 func (db *storage) fetchPageData(url string) (pageData, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
