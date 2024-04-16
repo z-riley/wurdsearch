@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -32,6 +33,20 @@ func newCrawler() (*Crawler, error) {
 	return c, nil
 }
 
+// setSeeds takes URLs to use as starting points for crawling
+func (c *Crawler) setSeeds(urls []string) error {
+	if len(urls) == 0 {
+		return errors.New("No seed URLs provided")
+	}
+
+	for _, url := range urls {
+		if err := c.frontier.queue.Enqueue(url); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (c *Crawler) crawlForever() error {
 
 	for {
@@ -57,6 +72,7 @@ func (c *Crawler) crawlForever() error {
 		fmt.Printf("Data: %+v\n", data)
 
 		// 3. Put new links into frontier
+		// c.frontier.queue.Enqueue()
 
 		// 4. Save page data in DB
 		c.db.savePageData(data)

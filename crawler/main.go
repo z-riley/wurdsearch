@@ -19,16 +19,16 @@ func main() {
 	}
 	defer c.destroy()
 
-	// Dummy URLs for testing
-	for _, url := range []string{
+	seeds := []string{
 		"https://google.com/",
 		"https://reddit.com/",
 		"https://example.com/",
-	} {
-		c.frontier.queue.Enqueue(url)
+	}
+	if err := c.setSeeds(seeds); err != nil {
+		log.Fatal().Err(err)
 	}
 
-	if err = c.crawlForever(); err != nil {
+	if err := c.crawlForever(); err != nil {
 		log.Fatal().Err(err)
 	}
 
