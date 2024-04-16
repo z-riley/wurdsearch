@@ -61,6 +61,7 @@ func (c *Crawler) crawlForever() error {
 		}
 
 		// 2. Crawl page
+		log.Debug().Msgf("Crawling page: %s", link.(string))
 		url, err := url.Parse(link.(string))
 		if err != nil {
 			return err
@@ -69,14 +70,21 @@ func (c *Crawler) crawlForever() error {
 		if err != nil {
 			return err
 		}
+		log.Debug().Str("page", url.String()).Msgf("Found %d links", len(data.Links))
 		fmt.Printf("Data: %+v\n", data)
 
 		// 3. Put new links into frontier
-		// c.frontier.queue.Enqueue()
+		for _, link := range data.Links {
+			if err := c.frontier.queue.Enqueue(link); err != nil {
+				log.Error().Err(err)
+			}
+		}
+		log.Debug().Msgf("Queue length: %v", c.frontier.queue.GetLen())
 
-		// 4. Save page data in DB
-		c.db.savePageData(data)
-
+		// 4. Save page data to DB
+		if err := c.db.savePageData(data); err != nil {
+			return err
+		}
 	}
 }
 
