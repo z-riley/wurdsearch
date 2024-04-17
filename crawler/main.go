@@ -28,13 +28,10 @@ func main() {
 		"https://example.com/",
 	}
 	if err := c.setSeeds(seeds); err != nil {
-		log.Fatal().Err(err)
+		log.Fatal().Err(err).Msg("Failed to set seeds")
 	}
 
-	if err := c.crawlForever(); err != nil {
-		log.Fatal().Err(err)
-	}
-
+	c.crawlForever()
 }
 
 func setUpLogger(httpLogging bool) {

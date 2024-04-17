@@ -84,9 +84,9 @@ func (db *storage) savePageData(data pageData) error {
 	}
 
 	if result.MatchedCount == 0 && result.UpsertedCount == 1 {
-		log.Debug().Msgf("Inserted new document for URL: %s", data.Url)
+		log.Debug().Msgf("Inserted new DB document for URL: %s", data.Url)
 	} else if result.ModifiedCount == 1 {
-		log.Debug().Msgf("Updated existing document for URL: %s", data.Url)
+		log.Debug().Msgf("Updated existing DB document for URL: %s", data.Url)
 	}
 
 	return nil

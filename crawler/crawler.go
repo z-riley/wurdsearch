@@ -47,45 +47,53 @@ func (c *Crawler) setSeeds(urls []string) error {
 	return nil
 }
 
-func (c *Crawler) crawlForever() error {
+func (c *Crawler) crawlForever() {
 
 	for {
-		// 1. Get next link from frontier
-		link, err := c.frontier.queue.Dequeue()
-		if err != nil {
-			return err
-		}
-		link, ok := link.(string)
-		if !ok {
-			return fmt.Errorf("%v is not castable to string", link)
-		}
-
-		// 2. Crawl page
-		log.Debug().Msgf("Crawling page: %s", link.(string))
-		url, err := url.Parse(link.(string))
-		if err != nil {
-			return err
-		}
-		data, err := c.crawlPage(url)
-		if err != nil {
-			return err
-		}
-		log.Debug().Str("page", url.String()).Msgf("Found %d links", len(data.Links))
-		fmt.Printf("Data: %+v\n", data)
-
-		// 3. Put new links into frontier
-		for _, link := range data.Links {
-			if err := c.frontier.queue.Enqueue(link); err != nil {
-				log.Error().Err(err)
-			}
-		}
-		log.Debug().Msgf("Queue length: %v", c.frontier.queue.GetLen())
-
-		// 4. Save page data to DB
-		if err := c.db.savePageData(data); err != nil {
-			return err
+		if err := c.crawlingSequence(); err != nil {
+			log.Error().Err(err).Msg("Crawl failed")
 		}
 	}
+}
+
+func (c *Crawler) crawlingSequence() error {
+	// 1. Get next link from frontier
+	link, err := c.frontier.queue.Dequeue()
+	if err != nil {
+		return err
+	}
+	link, ok := link.(string)
+	if !ok {
+		return fmt.Errorf("%v is not castable to string", link)
+	}
+
+	// 2. Crawl page
+	log.Debug().Msgf("Crawling page: %s", link.(string))
+	url, err := url.Parse(link.(string))
+	if err != nil {
+		return err
+	}
+	data, err := c.crawlPage(url)
+	if err != nil {
+		return err
+	}
+	log.Debug().Str("page", url.String()).Msgf("Found %d links", len(data.Links))
+	fmt.Printf("Data: %+v\n", data)
+
+	// 3. Put new links into frontier
+	for _, link := range data.Links {
+		if err := c.frontier.queue.Enqueue(link); err != nil {
+			log.Error().Err(err)
+		}
+	}
+	log.Debug().Msgf("Queue length: %v", c.frontier.queue.GetLen())
+
+	// 4. Save page data to DB
+	if err := c.db.savePageData(data); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *Crawler) crawlPage(url *url.URL) (pageData, error) {
