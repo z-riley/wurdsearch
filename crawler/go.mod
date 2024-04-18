@@ -2,6 +2,8 @@ module github.com/zac460/turdsearch/crawler
 
 go 1.22.2
 
+replace github.com/enriquebris/goconcurrentqueue v0.7.0 => github.com/zac460/goconcurrentqueue v0.0.0-20240418054722-110012582d8d
+
 require (
 	github.com/enriquebris/goconcurrentqueue v0.7.0
 	github.com/jimsmart/grobotstxt v1.0.3

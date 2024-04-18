@@ -19,6 +19,7 @@ func TestGetAll(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
 	if !reflect.DeepEqual(contents, sampleCrawledUrls()) {
 		t.Error("Expected out different to known input")
 	}
