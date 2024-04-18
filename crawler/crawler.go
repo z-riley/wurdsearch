@@ -40,7 +40,7 @@ func (c *Crawler) setSeeds(urls []string) error {
 	}
 
 	for _, url := range urls {
-		if err := c.frontier.queue.Enqueue(url); err != nil {
+		if err := c.frontier.push(url); err != nil {
 			return err
 		}
 	}
@@ -82,7 +82,7 @@ func (c *Crawler) crawlingSequence() error {
 
 	// 3. Put new links into frontier
 	for _, link := range data.Links {
-		if err := c.frontier.queue.Enqueue(link); err != nil {
+		if err := c.frontier.push(link); err != nil {
 			log.Error().Err(err)
 		}
 	}

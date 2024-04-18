@@ -1,13 +1,29 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
 	"testing"
-	"time"
 )
 
+func TestPush(t *testing.T) {
+	f := newFrontier()
+	for _, url := range []string{
+		"a",
+		"b",
+		"c",
+	} {
+		f.queue.Enqueue(url)
+	}
+
+	if err := f.push("d"); err != nil {
+		t.Error(err)
+	}
+
+	err := f.push("a")
+	if err == nil {
+		t.Error("Should have errored when duplicate item pushed")
+	}
+}
 
 func TestGetAll(t *testing.T) {
 	f := newFrontier()

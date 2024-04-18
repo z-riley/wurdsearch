@@ -17,9 +17,30 @@ func newFrontier() *frontier {
 	}
 }
 
-// TODO: make sure new links sent to frontier aren't already in the frontier
+// push puts an item at the back of the frontier queue. Returns error if the item already exists
+func (f *frontier) push(item any) error {
+	if f.contains(item) {
+		return fmt.Errorf("Frontier already contains: %v", item)
+	} else {
+		err := f.queue.Enqueue(item)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+}
 
-// getAll returns every item in the frontier as a string
+// contains checks if an item exists in the frontier queue
+func (f *frontier) contains(item any) bool {
+	for _, a := range f.queue.Slice {
+		if a == item {
+			return true
+		}
+	}
+	return false
+}
+
+// getAll returns every item in the frontier as strings
 func (f *frontier) getAll() ([]string, error) {
 	// Make copy first for thread safety
 	copy := append([]any{}, f.queue.Slice...)
