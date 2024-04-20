@@ -53,6 +53,16 @@ func (f *frontier) getAll() ([]string, error) {
 	return s, nil
 }
 
+type row struct {
+	val   string
+	count int
+}
+
+// TODO: topWebSites gets the most common websites in the frontier, ordered by count
+func (f *frontier) countTopOccurrances() ([]row, error) {
+	return []row{}, nil
+}
+
 // toStringSlice returns a copy of an any slice as a string slice
 func toStringSlice(a []any) ([]string, error) {
 	var s []string

@@ -41,6 +41,10 @@ func TestGetAll(t *testing.T) {
 	}
 }
 
+func TestCountTopOccurrances(t *testing.T) {
+	// TODO:
+}
+
 func TestCountOccurrances(t *testing.T) {
 	actual, err := countOccurrances(sampleCrawledUrls())
 	if err != nil {
