@@ -93,6 +93,17 @@ func (c *Crawler) crawlingSequence() error {
 		return err
 	}
 
+	// (5. log frontier diagnostics)
+	q, err := c.frontier.getAll()
+	if err != nil {
+		return err
+	}
+	m, err := countOccurrances(q)
+	if err != nil {
+		return err
+	}
+	log.Info().Any("map", m).Msg("Diagnostics")
+
 	return nil
 }
 
