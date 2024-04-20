@@ -89,7 +89,8 @@ func (c *Crawler) crawlingSequence() error {
 	log.Debug().Msgf("Queue length: %v", c.frontier.queue.GetLen())
 
 	// 4. Save page data to DB
-	if err := c.db.savePageData(data); err != nil {
+	err = c.db.savePageData(data)
+	if err != nil {
 		return err
 	}
 
@@ -135,10 +136,7 @@ func (c *Crawler) crawlPage(url *url.URL) (pageData, error) {
 	defer resp.Body.Close()
 
 	//  4. Parse page contents
-	data, err := parsePage(resp.Body, url, timeAccessed)
-	if err != nil {
-		return pageData{}, err
-	}
+	data := parsePage(resp.Body, url, timeAccessed)
 
 	return data, nil
 }
