@@ -15,7 +15,7 @@ func parsePage(body io.Reader, url *url.URL, timeAccessed time.Time) pageData {
 	var buf bytes.Buffer
 	tee := io.TeeReader(body, &buf)
 
-	content := ensureUTF8(extractText(&buf), '#')
+	content := ensureUTF8(extractText(&buf), ';')
 
 	return pageData{
 		Url:          url.String(),

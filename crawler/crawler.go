@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	crawlerName = "TurdSeeker" // user agent name
+	crawlerName = "TurdSeeker" // name of user agent in HTTP headers
 )
 
 type Crawler struct {
@@ -77,7 +77,7 @@ func (c *Crawler) crawlingSequence() error {
 	}
 
 	// 2. Crawl page
-	log.Debug().Msgf("Crawling page: %s", link.(string))
+	log.Info().Msgf("Crawling page: %s", link.(string))
 	url, err := url.Parse(link.(string))
 	if err != nil {
 		return err
@@ -119,7 +119,7 @@ func (c *Crawler) crawlingSequence() error {
 	if err != nil {
 		return err
 	}
-	log.Info().Any("map", m).Msg("Diagnostics")
+	log.Info().Any("map", m).Msg("Frontier diagnostics")
 
 	return nil
 }
