@@ -103,7 +103,6 @@ func TestPageLastCrawled(t *testing.T) {
 }
 
 func getTestConfig() storageConfig {
-	// TODO: use a seperate DB for testing
 	return storageConfig{
 		databaseName:          "turdsearch",
 		crawledDataCollection: "crawled_data",

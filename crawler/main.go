@@ -27,9 +27,10 @@ func main() {
 	defer c.destroy()
 
 	seeds := []string{
+		"https://puginarug.com/",
+		"https://example.com/",
 		"https://google.com/",
 		"https://reddit.com/",
-		"https://example.com/",
 	}
 	if err := c.setSeeds(seeds); err != nil {
 		log.Fatal().Err(err).Msg("Failed to set seeds")

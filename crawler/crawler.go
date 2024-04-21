@@ -102,7 +102,7 @@ func (c *Crawler) crawlingSequence() error {
 			log.Debug().Msgf("Not adding %s to frontier because it was already crawled in the last %v", url, c.gracePeriod)
 		}
 	}
-	log.Debug().Msgf("Frontier queue length: %v", c.frontier.queue.GetLen())
+	log.Info().Msgf("%d links added to frontier. New length: %d", len(data.Links), c.frontier.queue.GetLen())
 
 	// 4. Save page data to DB
 	err = c.db.savePageData(data)
@@ -124,13 +124,16 @@ func (c *Crawler) crawlingSequence() error {
 	return nil
 }
 
+// crawlPage crawls a page, obeying robots.txt
 func (c *Crawler) crawlPage(url *url.URL) (pageData, error) {
 
 	// 1. Get robots.txt
 	resp, err := http.Get(url.Scheme + "://" + url.Host + "/robots.txt")
 	if err != nil {
 		return pageData{}, err
-		// TODO: skip robots.txt stuff it one doesn't exist
+	}
+	if resp.StatusCode == 404 {
+		log.Debug().Msgf("robots.txt not found for %s. Continuing anyway", url.Host)
 	}
 	defer resp.Body.Close()
 	robotsTxt, err := io.ReadAll(resp.Body)
