@@ -2,19 +2,17 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 const (
-	databaseName          = "turdsearch"
-	crawledDataCollection = "crawled_data"
-	indexedDataCollection = "indexed_data"
-
 	requestTimeout = 3 * time.Second
 )
 
@@ -27,9 +25,14 @@ type pageData struct {
 
 type storage struct {
 	client *mongo.Client
+	config storageConfig
 }
 
-func newStorageConn() (*storage, error) {
+type storageConfig struct {
+	databaseName, crawledDataCollection, indexedDataCollection string
+}
+
+func newStorageConn(config storageConfig) (*storage, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
@@ -37,16 +40,14 @@ func newStorageConn() (*storage, error) {
 		return nil, err
 	}
 
-	// Index by page URL
+	// Index crawled data by page URL
 	model := mongo.IndexModel{
 		Keys: bson.M{
 			"url": 1, // ascending order
 		},
 		Options: options.Index().SetUnique(true),
 	}
-
-	// Create the index
-	collection := client.Database(databaseName).Collection(crawledDataCollection)
+	collection := client.Database(config.databaseName).Collection(config.crawledDataCollection)
 	_, err = collection.Indexes().CreateOne(ctx, model)
 	if err != nil {
 		return nil, err
@@ -54,6 +55,7 @@ func newStorageConn() (*storage, error) {
 
 	return &storage{
 		client: client,
+		config: config,
 	}, nil
 }
 
@@ -77,7 +79,7 @@ func (db *storage) savePageData(data pageData) error {
 	update := bson.M{"$set": data}           // set new data for the document
 	opts := options.Update().SetUpsert(true) // create a new document if one doesn't exist
 
-	collection := db.client.Database(databaseName).Collection(crawledDataCollection)
+	collection := db.client.Database(db.config.databaseName).Collection(db.config.crawledDataCollection)
 	result, err := collection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		return err
@@ -97,7 +99,7 @@ func (db *storage) fetchPageData(url string) (pageData, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
-	collection := db.client.Database(databaseName).Collection(crawledDataCollection)
+	collection := db.client.Database(db.config.databaseName).Collection(db.config.crawledDataCollection)
 	var retrievedPageData pageData
 
 	err := collection.FindOne(ctx, bson.M{"url": url}).Decode(&retrievedPageData)
@@ -108,6 +110,44 @@ func (db *storage) fetchPageData(url string) (pageData, error) {
 	return retrievedPageData, nil
 }
 
+// pageIsRecentlyCrawled checks if a page was crawled in the last specified time frame (window)
+func (db *storage) pageIsRecentlyCrawled(url string, window time.Duration) (bool, error) {
+	lastCrawled, err := db.pageLastCrawled(url)
+	if err != nil {
+		return false, err
+	}
+
+	if time.Since(lastCrawled) > window {
+		return false, nil
+	} else {
+		return true, nil
+	}
+}
+
+// pageLastCrawled returns when a page was last crawled. Error if page doesn't exist
+func (db *storage) pageLastCrawled(url string) (time.Time, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
+	defer cancel()
+
+	collection := db.client.Database(db.config.databaseName).Collection(db.config.crawledDataCollection)
+
+	var result bson.M
+	err := collection.FindOne(ctx, bson.M{"url": url}).Decode(&result)
+	if err == mongo.ErrNoDocuments {
+		return time.Unix(0, 0), nil
+	} else if err != nil {
+		return time.Unix(0, 0), err
+	}
+
+	field := "lastAccessed"
+	if dt, ok := result[field].(primitive.DateTime); ok {
+		return dt.Time(), nil
+	} else {
+		return time.Unix(0, 0), fmt.Errorf("Failed to convert field %s into valid time", field)
+	}
+}
+
+// destroy disconnects from the database
 func (db *storage) destroy() {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()

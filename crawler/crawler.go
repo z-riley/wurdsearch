@@ -11,23 +11,31 @@ import (
 	"github.com/jimsmart/grobotstxt"
 )
 
-const crawlerName = "TurdSeeker"
+const (
+	crawlerName = "TurdSeeker" // user agent name
+)
 
 type Crawler struct {
-	frontier *frontier // queue of links to visit next
-	db       *storage  // database abstraction
+	frontier    *frontier     // queue of links to visit next
+	db          *storage      // database abstraction
+	gracePeriod time.Duration // grace period before a webpage can get crawled again
 }
 
-func newCrawler() (*Crawler, error) {
+func newCrawler(gracePeriod time.Duration) (*Crawler, error) {
 
-	db, err := newStorageConn()
+	db, err := newStorageConn(storageConfig{
+		databaseName:          "turdsearch",
+		crawledDataCollection: "crawled_data",
+		indexedDataCollection: "indexed_data",
+	})
 	if err != nil {
 		log.Fatal().Err(err)
 	}
 
 	c := &Crawler{
-		frontier: newFrontier(),
-		db:       db,
+		frontier:    newFrontier(),
+		db:          db,
+		gracePeriod: gracePeriod,
 	}
 
 	return c, nil
@@ -51,7 +59,7 @@ func (c *Crawler) crawlForever() {
 
 	for {
 		if err := c.crawlingSequence(); err != nil {
-			log.Error().Err(err).Msg("Crawl failed")
+			log.Warn().Err(err).Msg("Crawl failed")
 		}
 	}
 }
@@ -60,6 +68,7 @@ func (c *Crawler) crawlingSequence() error {
 	// 1. Get next link from frontier
 	link, err := c.frontier.queue.Dequeue()
 	if err != nil {
+		log.Error().Err(err).Msg("Failed to dequeue the next link from frontier")
 		return err
 	}
 	link, ok := link.(string)
@@ -78,15 +87,22 @@ func (c *Crawler) crawlingSequence() error {
 		return err
 	}
 	log.Debug().Str("page", url.String()).Msgf("Found %d links", len(data.Links))
-	fmt.Printf("Data: %+v\n", data)
 
-	// 3. Put new links into frontier
+	// 3. Put new links into frontier if the pages haven't been scraped recently
 	for _, link := range data.Links {
-		if err := c.frontier.push(link); err != nil {
-			log.Error().Err(err)
+		isCrawledRecently, err := c.db.pageIsRecentlyCrawled(link, c.gracePeriod)
+		if err != nil {
+			return err
+		}
+		if !isCrawledRecently {
+			if err := c.frontier.push(link); err != nil {
+				log.Error().Err(err)
+			}
+		} else {
+			log.Debug().Msgf("Not adding %s to frontier because it was already crawled in the last %v", url, c.gracePeriod)
 		}
 	}
-	log.Debug().Msgf("Queue length: %v", c.frontier.queue.GetLen())
+	log.Debug().Msgf("Frontier queue length: %v", c.frontier.queue.GetLen())
 
 	// 4. Save page data to DB
 	err = c.db.savePageData(data)
@@ -94,7 +110,7 @@ func (c *Crawler) crawlingSequence() error {
 		return err
 	}
 
-	// (5. log frontier diagnostics)
+	// (5. Log frontier diagnostics)
 	q, err := c.frontier.getAll()
 	if err != nil {
 		return err

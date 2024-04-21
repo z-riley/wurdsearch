@@ -11,12 +11,16 @@ import (
 	// "github.com/zac460/herolog"
 )
 
+const (
+	crawlGracePeriod = 3 * time.Minute
+)
+
 var log zerolog.Logger
 
 func main() {
 	setUpLogger(false)
 
-	c, err := newCrawler()
+	c, err := newCrawler(crawlGracePeriod)
 	if err != nil {
 		log.Fatal().Err(err)
 	}
