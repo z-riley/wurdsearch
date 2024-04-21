@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	crawlGracePeriod = 3 * time.Minute
+	crawlGracePeriod = 1 * time.Second
 )
 
 var log zerolog.Logger
