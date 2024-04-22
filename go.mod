@@ -1,4 +1,4 @@
-module github.com/zac460/turdsearch/crawler
+module github.com/zac460/turdsearch
 
 go 1.22.2
 

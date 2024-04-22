@@ -1,42 +1,46 @@
-package main
+package store
 
 import (
 	"context"
 	"fmt"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 const (
 	requestTimeout = 3 * time.Second
 )
 
-type pageData struct {
+type PageData struct {
 	Url          string    `bson:"url"`
 	LastAccessed time.Time `bson:"lastAccessed"`
 	Links        []string  `bson:"links"`
 	Content      string    `bson:"content"`
 }
 
-type storage struct {
+type Storage struct {
 	client *mongo.Client
-	config storageConfig
+	Config StorageConfig
 }
 
-type storageConfig struct {
-	databaseName, crawledDataCollection, indexedDataCollection string
+type StorageConfig struct {
+	DatabaseName, CrawledDataCollection, IndexedDataCollection string
 }
 
-func newStorageConn(config storageConfig) (*storage, error) {
+func NewStorageConn(config StorageConfig) (*Storage, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
+		return nil, err
+	}
+
+	if err := client.Ping(context.Background(), nil); err != nil {
 		return nil, err
 	}
 
@@ -47,31 +51,20 @@ func newStorageConn(config storageConfig) (*storage, error) {
 		},
 		Options: options.Index().SetUnique(true),
 	}
-	collection := client.Database(config.databaseName).Collection(config.crawledDataCollection)
+	collection := client.Database(config.DatabaseName).Collection(config.CrawledDataCollection)
 	_, err = collection.Indexes().CreateOne(ctx, model)
 	if err != nil {
 		return nil, err
 	}
 
-	return &storage{
+	return &Storage{
 		client: client,
-		config: config,
+		Config: config,
 	}, nil
 }
 
-func (db *storage) ping() error {
-	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
-	defer cancel()
-
-	err := db.client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// savePageData inserts or overwrites a page data document
-func (db *storage) savePageData(data pageData) error {
+// SavePageData inserts or overwrites a page data document
+func (db *Storage) SavePageData(data PageData) error {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
@@ -79,7 +72,7 @@ func (db *storage) savePageData(data pageData) error {
 	update := bson.M{"$set": data}           // set new data for the document
 	opts := options.Update().SetUpsert(true) // create a new document if one doesn't exist
 
-	collection := db.client.Database(db.config.databaseName).Collection(db.config.crawledDataCollection)
+	collection := db.client.Database(db.Config.DatabaseName).Collection(db.Config.CrawledDataCollection)
 	result, err := collection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		return err
@@ -94,25 +87,25 @@ func (db *storage) savePageData(data pageData) error {
 	return nil
 }
 
-// fetchPageData retrieves page data for a specified URL
-func (db *storage) fetchPageData(url string) (pageData, error) {
+// FetchPageData retrieves page data for a specified URL
+func (db *Storage) FetchPageData(url string) (PageData, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
-	collection := db.client.Database(db.config.databaseName).Collection(db.config.crawledDataCollection)
-	var retrievedPageData pageData
+	collection := db.client.Database(db.Config.DatabaseName).Collection(db.Config.CrawledDataCollection)
+	var retrievedPageData PageData
 
 	err := collection.FindOne(ctx, bson.M{"url": url}).Decode(&retrievedPageData)
 	if err != nil {
-		return pageData{}, err
+		return PageData{}, err
 	}
 	log.Info().Msgf("Retrieved event date: %+v\n", retrievedPageData)
 	return retrievedPageData, nil
 }
 
-// pageIsRecentlyCrawled checks if a page was crawled in the last specified time frame (window)
-func (db *storage) pageIsRecentlyCrawled(url string, window time.Duration) (bool, error) {
-	lastCrawled, err := db.pageLastCrawled(url)
+// PageIsRecentlyCrawled checks if a page was crawled in the last specified time frame (window)
+func (db *Storage) PageIsRecentlyCrawled(url string, window time.Duration) (bool, error) {
+	lastCrawled, err := db.PageLastCrawled(url)
 	if err != nil {
 		return false, err
 	}
@@ -124,12 +117,12 @@ func (db *storage) pageIsRecentlyCrawled(url string, window time.Duration) (bool
 	}
 }
 
-// pageLastCrawled returns when a page was last crawled. Error if page doesn't exist
-func (db *storage) pageLastCrawled(url string) (time.Time, error) {
+// PageLastCrawled returns when a page was last crawled. Error if page doesn't exist
+func (db *Storage) PageLastCrawled(url string) (time.Time, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
-	collection := db.client.Database(db.config.databaseName).Collection(db.config.crawledDataCollection)
+	collection := db.client.Database(db.Config.DatabaseName).Collection(db.Config.CrawledDataCollection)
 
 	var result bson.M
 	err := collection.FindOne(ctx, bson.M{"url": url}).Decode(&result)
@@ -147,8 +140,8 @@ func (db *storage) pageLastCrawled(url string) (time.Time, error) {
 	}
 }
 
-// destroy disconnects from the database
-func (db *storage) destroy() {
+// Destroy disconnects from the database
+func (db *Storage) Destroy() {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 

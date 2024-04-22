@@ -9,6 +9,7 @@ import (
 
 	"github.com/rs/zerolog"
 	// "github.com/zac460/herolog"
+	"github.com/zac460/turdsearch/crawler"
 )
 
 const (
@@ -19,12 +20,13 @@ var log zerolog.Logger
 
 func main() {
 	setUpLogger(false)
+	log.Info().Msg("Begin")
 
-	c, err := newCrawler(crawlGracePeriod)
+	c, err := crawler.NewCrawler(crawlGracePeriod)
 	if err != nil {
 		log.Fatal().Err(err)
 	}
-	defer c.destroy()
+	defer c.Destroy()
 
 	seeds := []string{
 		"https://puginarug.com/",
@@ -32,11 +34,11 @@ func main() {
 		"https://google.com/",
 		"https://reddit.com/",
 	}
-	if err := c.setSeeds(seeds); err != nil {
+	if err := c.SetSeeds(seeds); err != nil {
 		log.Fatal().Err(err).Msg("Failed to set seeds")
 	}
 
-	c.crawlForever()
+	c.CrawlForever()
 }
 
 func setUpLogger(httpLogging bool) {

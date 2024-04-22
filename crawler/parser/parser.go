@@ -1,4 +1,4 @@
-package main
+package parser
 
 import (
 	"bytes"
@@ -8,16 +8,18 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/rs/zerolog/log"
+	"github.com/zac460/turdsearch/store"
 	"golang.org/x/net/html"
 )
 
-func parsePage(body io.Reader, url *url.URL, timeAccessed time.Time) pageData {
+func ParsePage(body io.Reader, url *url.URL, timeAccessed time.Time) store.PageData {
 	var buf bytes.Buffer
 	tee := io.TeeReader(body, &buf)
 
 	content := ensureUTF8(extractText(&buf), ';')
 
-	return pageData{
+	return store.PageData{
 		Url:          url.String(),
 		LastAccessed: timeAccessed,
 		Links:        extractLinks(tee, url),

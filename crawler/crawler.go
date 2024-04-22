@@ -1,4 +1,4 @@
-package main
+package crawler
 
 import (
 	"errors"
@@ -9,6 +9,10 @@ import (
 	"time"
 
 	"github.com/jimsmart/grobotstxt"
+	"github.com/rs/zerolog/log"
+	"github.com/zac460/turdsearch/crawler/frontier"
+	"github.com/zac460/turdsearch/crawler/parser"
+	"github.com/zac460/turdsearch/store"
 )
 
 const (
@@ -16,24 +20,24 @@ const (
 )
 
 type Crawler struct {
-	frontier    *frontier     // queue of links to visit next
-	db          *storage      // database abstraction
-	gracePeriod time.Duration // grace period before a webpage can get crawled again
+	frontier    *frontier.Frontier // queue of links to visit next
+	db          *store.Storage     // database abstraction
+	gracePeriod time.Duration      // grace period before a webpage can get crawled again
 }
 
-func newCrawler(gracePeriod time.Duration) (*Crawler, error) {
+func NewCrawler(gracePeriod time.Duration) (*Crawler, error) {
 
-	db, err := newStorageConn(storageConfig{
-		databaseName:          "turdsearch",
-		crawledDataCollection: "crawled_data",
-		indexedDataCollection: "indexed_data",
+	db, err := store.NewStorageConn(store.StorageConfig{
+		DatabaseName:          "turdsearch",
+		CrawledDataCollection: "crawled_data",
+		IndexedDataCollection: "indexed_data",
 	})
 	if err != nil {
 		log.Fatal().Err(err)
 	}
 
 	c := &Crawler{
-		frontier:    newFrontier(),
+		frontier:    frontier.NewFrontier(),
 		db:          db,
 		gracePeriod: gracePeriod,
 	}
@@ -41,21 +45,21 @@ func newCrawler(gracePeriod time.Duration) (*Crawler, error) {
 	return c, nil
 }
 
-// setSeeds takes URLs to use as starting points for crawling
-func (c *Crawler) setSeeds(urls []string) error {
+// SetSeeds takes URLs to use as starting points for crawling
+func (c *Crawler) SetSeeds(urls []string) error {
 	if len(urls) == 0 {
 		return errors.New("No seed URLs provided")
 	}
 
 	for _, url := range urls {
-		if err := c.frontier.push(url); err != nil {
+		if err := c.frontier.Push(url); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (c *Crawler) crawlForever() {
+func (c *Crawler) CrawlForever() {
 
 	for {
 		if err := c.crawlingSequence(); err != nil {
@@ -66,7 +70,7 @@ func (c *Crawler) crawlForever() {
 
 func (c *Crawler) crawlingSequence() error {
 	// 1. Get next link from frontier
-	link, err := c.frontier.queue.Dequeue()
+	link, err := c.frontier.Dequeue()
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to dequeue the next link from frontier")
 		return err
@@ -90,32 +94,32 @@ func (c *Crawler) crawlingSequence() error {
 
 	// 3. Put new links into frontier if the pages haven't been scraped recently
 	for _, link := range data.Links {
-		isCrawledRecently, err := c.db.pageIsRecentlyCrawled(link, c.gracePeriod)
+		isCrawledRecently, err := c.db.PageIsRecentlyCrawled(link, c.gracePeriod)
 		if err != nil {
 			return err
 		}
 		if !isCrawledRecently {
-			if err := c.frontier.push(link); err != nil {
+			if err := c.frontier.Push(link); err != nil {
 				log.Error().Err(err)
 			}
 		} else {
 			log.Debug().Msgf("Not adding %s to frontier because it was already crawled in the last %v", url, c.gracePeriod)
 		}
 	}
-	log.Info().Msgf("%d links added to frontier. New length: %d", len(data.Links), c.frontier.queue.GetLen())
+	log.Info().Msgf("%d links added to frontier. New length: %d", len(data.Links), c.frontier.Len())
 
 	// 4. Save page data to DB
-	err = c.db.savePageData(data)
+	err = c.db.SavePageData(data)
 	if err != nil {
 		return err
 	}
 
 	// (5. Log frontier diagnostics)
-	q, err := c.frontier.getAll()
+	q, err := c.frontier.GetAll()
 	if err != nil {
 		return err
 	}
-	m, err := countOccurrances(q)
+	m, err := frontier.CountOccurrances(q)
 	if err != nil {
 		return err
 	}
@@ -125,12 +129,12 @@ func (c *Crawler) crawlingSequence() error {
 }
 
 // crawlPage crawls a page, obeying robots.txt
-func (c *Crawler) crawlPage(url *url.URL) (pageData, error) {
+func (c *Crawler) crawlPage(url *url.URL) (store.PageData, error) {
 
 	// 1. Get robots.txt
 	resp, err := http.Get(url.Scheme + "://" + url.Host + "/robots.txt")
 	if err != nil {
-		return pageData{}, err
+		return store.PageData{}, err
 	}
 	if resp.StatusCode == 404 {
 		log.Debug().Msgf("robots.txt not found for %s. Continuing anyway", url.Host)
@@ -138,24 +142,24 @@ func (c *Crawler) crawlPage(url *url.URL) (pageData, error) {
 	defer resp.Body.Close()
 	robotsTxt, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return pageData{}, err
+		return store.PageData{}, err
 	}
 
 	// 2. Check we can visit the page
 	if !checkPageAllowed(string(robotsTxt), url.String()) {
-		return pageData{}, fmt.Errorf("robots.txt forbids visiting page: %s", url)
+		return store.PageData{}, fmt.Errorf("robots.txt forbids visiting page: %s", url)
 	}
 
 	// 3. Visit page
 	timeAccessed := time.Now()
 	resp, err = http.Get(url.String())
 	if err != nil {
-		return pageData{}, err
+		return store.PageData{}, err
 	}
 	defer resp.Body.Close()
 
 	//  4. Parse page contents
-	data := parsePage(resp.Body, url, timeAccessed)
+	data := parser.ParsePage(resp.Body, url, timeAccessed)
 
 	return data, nil
 }
@@ -164,6 +168,6 @@ func checkPageAllowed(robotsTxt, url string) bool {
 	return grobotstxt.AgentAllowed(robotsTxt, crawlerName, url)
 }
 
-func (c *Crawler) destroy() {
-	c.db.destroy()
+func (c *Crawler) Destroy() {
+	c.db.Destroy()
 }

@@ -1,4 +1,4 @@
-package main
+package store
 
 import (
 	"fmt"
@@ -7,33 +7,21 @@ import (
 )
 
 func TestNewStorageConn(t *testing.T) {
-	db, err := newStorageConn(getTestConfig())
+	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
 		t.Error(err)
 	}
-	defer db.destroy()
-}
-
-func TestPing(t *testing.T) {
-	db, err := newStorageConn(getTestConfig())
-	if err != nil {
-		t.Error(err)
-	}
-	defer db.destroy()
-
-	if err := db.ping(); err != nil {
-		t.Error(err)
-	}
+	defer db.Destroy()
 }
 
 func TestEnterPageData(t *testing.T) {
-	db, err := newStorageConn(getTestConfig())
+	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
 		t.Error(err)
 	}
-	defer db.destroy()
+	defer db.Destroy()
 
-	for _, data := range []pageData{
+	for _, data := range []PageData{
 		{
 			Url:          "https://example.com/",
 			LastAccessed: time.Now(),
@@ -47,7 +35,7 @@ func TestEnterPageData(t *testing.T) {
 			Content:      "all my yummy content",
 		},
 	} {
-		if err := db.savePageData(data); err != nil {
+		if err := db.SavePageData(data); err != nil {
 			t.Error(err)
 		}
 	}
@@ -55,14 +43,14 @@ func TestEnterPageData(t *testing.T) {
 }
 
 func TestFetchPageData(t *testing.T) {
-	db, err := newStorageConn(getTestConfig())
+	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
 		t.Error(err)
 	}
-	defer db.destroy()
+	defer db.Destroy()
 
 	url := "https://example.com/"
-	data, err := db.fetchPageData(url)
+	data, err := db.FetchPageData(url)
 	if err != nil {
 		t.Error(err)
 	}
@@ -70,15 +58,15 @@ func TestFetchPageData(t *testing.T) {
 }
 
 func TestPageIsRecentlyCrawled(t *testing.T) {
-	db, err := newStorageConn(getTestConfig())
+	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
 		t.Error(err)
 	}
-	defer db.destroy()
+	defer db.Destroy()
 
 	url := "https://example.com/"
 	window := 24 * time.Hour
-	result, err := db.pageIsRecentlyCrawled(url, window)
+	result, err := db.PageIsRecentlyCrawled(url, window)
 	if err != nil {
 		t.Error(t)
 	}
@@ -87,14 +75,14 @@ func TestPageIsRecentlyCrawled(t *testing.T) {
 }
 
 func TestPageLastCrawled(t *testing.T) {
-	db, err := newStorageConn(getTestConfig())
+	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
 		t.Error(err)
 	}
-	defer db.destroy()
+	defer db.Destroy()
 
 	url := "https://example.com/"
-	timeLastCrawled, err := db.pageLastCrawled(url)
+	timeLastCrawled, err := db.PageLastCrawled(url)
 	if err != nil {
 		t.Error(err)
 	}
@@ -102,10 +90,10 @@ func TestPageLastCrawled(t *testing.T) {
 	fmt.Printf("Page %s last crawled at %v", url, timeLastCrawled)
 }
 
-func getTestConfig() storageConfig {
-	return storageConfig{
-		databaseName:          "turdsearch",
-		crawledDataCollection: "crawled_data",
-		indexedDataCollection: "indexed_data",
+func getTestConfig() StorageConfig {
+	return StorageConfig{
+		DatabaseName:          "turdsearch",
+		CrawledDataCollection: "crawled_data",
+		IndexedDataCollection: "indexed_data",
 	}
 }

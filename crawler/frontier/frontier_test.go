@@ -1,4 +1,4 @@
-package main
+package frontier
 
 import (
 	"reflect"
@@ -6,7 +6,7 @@ import (
 )
 
 func TestPush(t *testing.T) {
-	f := newFrontier()
+	f := NewFrontier()
 	for _, url := range []string{
 		"a",
 		"b",
@@ -15,23 +15,23 @@ func TestPush(t *testing.T) {
 		f.queue.Enqueue(url)
 	}
 
-	if err := f.push("d"); err != nil {
+	if err := f.Push("d"); err != nil {
 		t.Error(err)
 	}
 
-	err := f.push("a")
+	err := f.Push("a")
 	if err == nil {
 		t.Error("Should have errored when duplicate item pushed")
 	}
 }
 
 func TestGetAll(t *testing.T) {
-	f := newFrontier()
+	f := NewFrontier()
 	for _, url := range sampleCrawledUrls() {
 		f.queue.Enqueue(url)
 	}
 
-	contents, err := f.getAll()
+	contents, err := f.GetAll()
 	if err != nil {
 		t.Error(err)
 	}
@@ -46,7 +46,7 @@ func TestCountTopOccurrances(t *testing.T) {
 }
 
 func TestCountOccurrances(t *testing.T) {
-	actual, err := countOccurrances(sampleCrawledUrls())
+	actual, err := CountOccurrances(sampleCrawledUrls())
 	if err != nil {
 		t.Error(err)
 	}
