@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+
 	// "github.com/zac460/herolog"
 	"github.com/zac460/turdsearch/crawler"
 )
@@ -15,8 +17,6 @@ import (
 const (
 	crawlGracePeriod = 1 * time.Second
 )
-
-var log zerolog.Logger
 
 func main() {
 	setUpLogger(false)
@@ -56,7 +56,7 @@ func setUpLogger(httpLogging bool) {
 		return filepath.Base(file) + ":" + strconv.Itoa(line)
 	}
 
-	log = zerolog.New(multiWriter).With().Timestamp().Caller().Logger()
+	log.Logger = zerolog.New(multiWriter).With().Timestamp().Caller().Logger()
 }
 
 func UNUSED(x ...any) {}
