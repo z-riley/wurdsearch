@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/jimsmart/grobotstxt"
@@ -60,7 +61,6 @@ func (c *Crawler) SetSeeds(urls []string) error {
 }
 
 func (c *Crawler) CrawlForever() {
-
 	for {
 		if err := c.crawlingSequence(); err != nil {
 			log.Warn().Err(err).Msg("Crawl failed")
@@ -94,6 +94,8 @@ func (c *Crawler) crawlingSequence() error {
 
 	// 3. Put new links into frontier if the pages haven't been scraped recently
 	for _, link := range data.Links {
+
+		// Check if link was crawled recently
 		isCrawledRecently, err := c.db.PageIsRecentlyCrawled(link, c.gracePeriod)
 		if err != nil {
 			return err
@@ -159,6 +161,11 @@ func (c *Crawler) crawlPage(url *url.URL) (store.PageData, error) {
 	defer resp.Body.Close()
 
 	//  4. Parse page contents
+	contentType := resp.Header["Content-Type"][0]
+	parsable := strings.Contains(contentType, "text/html") || strings.Contains(contentType, "text/plain")
+	if !parsable {
+		return store.PageData{}, fmt.Errorf("Not parsing page %s because of non-text content type: %s", url.String(), contentType)
+	}
 	data := parser.ParsePage(resp.Body, url, timeAccessed)
 
 	return data, nil
