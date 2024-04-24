@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Crawler",
+            "type": "go",
+            "request": "launch",
+            "program": "/home/zac/repo/turdsearch/crawler/cmd/main.go",
+            "args": [],
+            "env": {},
+        },
+        {
+            "name": "Indexer",
+            "type": "go",
+            "request": "launch",
+            "program": "/home/zac/repo/turdsearch/indexer/cmd/main.go",
+            "args": [],
+            "env": {},
+        }
+    ]
+}
