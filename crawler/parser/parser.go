@@ -17,12 +17,13 @@ func ParsePage(body io.Reader, url *url.URL, timeAccessed time.Time) store.PageD
 	var buf bytes.Buffer
 	tee := io.TeeReader(body, &buf)
 
-	content := ensureUTF8(extractText(&buf), ';')
+	content := ensureUTF8(extractText(tee), ';')
+	links := extractLinks(&buf, url)
 
 	return store.PageData{
 		Url:          url.String(),
 		LastAccessed: timeAccessed,
-		Links:        extractLinks(tee, url),
+		Links:        links,
 		Content:      content,
 	}
 }
@@ -92,8 +93,6 @@ func ensureUTF8(input string, replacement rune) string {
 			_, size := utf8.DecodeRuneInString(input[i:])
 			if size == 1 {
 				v = append(v, replacement) // replace invalid rune
-				// NOTE: TEMPORARY JUST TO SEE IF IT ACTUALLY EVER TRIGGERS
-				log.Fatal().Msgf("******** Replacing %v with %v ********", r, replacement)
 				continue
 			}
 		}
