@@ -23,6 +23,10 @@ func TestExtractText(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	text := extractText(resp.Body)
+	text, err := extractText(resp.Body)
+	if err != nil {
+		t.Error(err)
+	}
+
 	fmt.Println(text)
 }

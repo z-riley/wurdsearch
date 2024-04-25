@@ -4,20 +4,26 @@ import (
 	"bytes"
 	"io"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 	"unicode/utf8"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/rs/zerolog/log"
 	"github.com/zac460/turdsearch/store"
 	"golang.org/x/net/html"
 )
 
-func ParsePage(body io.Reader, url *url.URL, timeAccessed time.Time) store.PageData {
+func ParsePage(body io.Reader, url *url.URL, timeAccessed time.Time) (store.PageData, error) {
 	var buf bytes.Buffer
 	tee := io.TeeReader(body, &buf)
 
-	content := ensureUTF8(extractText(tee), ';')
+	content, err := extractText(tee)
+	if err != nil {
+		return store.PageData{}, nil
+	}
+
 	links := extractLinks(&buf, url)
 
 	return store.PageData{
@@ -25,7 +31,7 @@ func ParsePage(body io.Reader, url *url.URL, timeAccessed time.Time) store.PageD
 		LastAccessed: timeAccessed,
 		Links:        links,
 		Content:      content,
-	}
+	}, nil
 }
 
 func extractLinks(body io.Reader, baseUrl *url.URL) []string {
@@ -57,31 +63,28 @@ func extractLinks(body io.Reader, baseUrl *url.URL) []string {
 	}
 }
 
-func extractText(body io.Reader) string {
-	var text string
-	z := html.NewTokenizer(body)
-
-	token := z.Token()
-
-	for {
-		tt := z.Next()
-		switch {
-		case tt == html.ErrorToken:
-			return text // EOF
-		case tt == html.StartTagToken:
-			token = z.Token()
-		case tt == html.TextToken:
-			if token.Data == "script" || token.Data == "style" {
-				continue
-			}
-			content := strings.TrimSpace(html.UnescapeString(string(z.Text())))
-			if len(content) > 0 {
-				text = text + content + " "
-			}
-		}
+func extractText(body io.Reader) (string, error) {
+	doc, err := goquery.NewDocumentFromReader(body)
+	if err != nil {
+		return "", err
 	}
+
+	var textContent strings.Builder
+	doc.Find("p, h1, h2, h3, h4, h5, h6, li").Each(func(i int, s *goquery.Selection) {
+		text := s.Text()
+		// Replace multiple newlines and trim space
+		re := regexp.MustCompile(`\s+`)
+		cleanedText := re.ReplaceAllString(text, " ")
+		cleanedText = strings.TrimSpace(cleanedText)
+
+		if cleanedText != "" {
+			textContent.WriteString(cleanedText + "\n")
+		}
+	})
+	return textContent.String(), nil
 }
 
+// UNUSED:
 // ensureUTF8 replaces multi-byte characters with a replacement character
 func ensureUTF8(input string, replacement rune) string {
 	if utf8.ValidString(input) {

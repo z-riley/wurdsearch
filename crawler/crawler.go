@@ -166,7 +166,10 @@ func (c *Crawler) crawlPage(url *url.URL) (store.PageData, error) {
 	if !parsable {
 		return store.PageData{}, fmt.Errorf("Not parsing page %s because of non-text content type: %s", url.String(), contentType)
 	}
-	data := parser.ParsePage(resp.Body, url, timeAccessed)
+	data, err := parser.ParsePage(resp.Body, url, timeAccessed)
+	if err != nil {
+		return store.PageData{}, err
+	}
 
 	return data, nil
 }

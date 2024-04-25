@@ -5,6 +5,7 @@ go 1.22.2
 replace github.com/enriquebris/goconcurrentqueue v0.7.0 => github.com/zac460/goconcurrentqueue v0.0.0-20240418054722-110012582d8d
 
 require (
+	github.com/PuerkitoBio/goquery v1.9.1
 	github.com/enriquebris/goconcurrentqueue v0.7.0
 	github.com/jimsmart/grobotstxt v1.0.3
 	github.com/rs/zerolog v1.32.0
@@ -13,6 +14,7 @@ require (
 )
 
 require (
+	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
