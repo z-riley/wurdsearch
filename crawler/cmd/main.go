@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	crawlGracePeriod = 1 * time.Second
+	crawlGracePeriod = 10 * time.Second
 )
 
 func main() {
@@ -58,5 +58,3 @@ func setUpLogger(httpLogging bool) {
 
 	log.Logger = zerolog.New(multiWriter).With().Timestamp().Caller().Logger()
 }
-
-func UNUSED(x ...any) {}
