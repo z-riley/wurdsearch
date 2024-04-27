@@ -1,13 +1,14 @@
 package main
 
-// wordIndex contains which websites use a particular word, and how many times
+// WordEntry contains which websites use a particular word, and how many times
 // it appears on each page
-type wordIndex struct {
+type WordEntry struct {
 	word       string          `bson:"word"`
 	references map[string]uint `bson:"references"`
 }
 
-// digest processes page data
-func digest() error {
-	return nil
+type WordIndexer struct{}
+
+func NewWordIndexer() *WordIndexer {
+	return &WordIndexer{}
 }
