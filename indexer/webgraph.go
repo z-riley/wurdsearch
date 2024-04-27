@@ -33,6 +33,8 @@ func (w *Webgrapher) GenerateWebgraph() error {
 			break
 		}
 
+		// TODO: Populate linksFrom field (any way to do this not N^2?)
+
 		if err := w.db.SaveNode(store.Node{
 			Url:       data.Url,
 			LinksTo:   data.Links,
