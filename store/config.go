@@ -8,8 +8,14 @@ const (
 
 	WebgraphCollection     = "webgraph"
 	WebgraphTestCollection = "webgraph_test"
+
+	WordIndexCollection     = "word_index"
+	WordIndexTestCollection = "word_index_test"
 )
 
 type StorageConfig struct {
-	DatabaseName, CrawledDataCollection, WebgraphCollection string
+	DatabaseName          string
+	CrawledDataCollection string
+	WebgraphCollection    string
+	WordIndexCollection   string
 }

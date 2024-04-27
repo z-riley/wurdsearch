@@ -60,6 +60,19 @@ func NewStorageConn(config StorageConfig) (*Storage, error) {
 		return nil, err
 	}
 
+	// Index word index by word
+	model = mongo.IndexModel{
+		Keys: bson.M{
+			"word": 1, // ascending order
+		},
+		Options: options.Index().SetUnique(true),
+	}
+	collection = client.Database(config.DatabaseName).Collection(config.WordIndexCollection)
+	_, err = collection.Indexes().CreateOne(ctx, model)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Storage{
 		client: client,
 		Config: config,

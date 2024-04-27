@@ -17,6 +17,7 @@ func NewIndexer() (*Indexer, error) {
 		DatabaseName:          store.DatabaseName,
 		CrawledDataCollection: store.CrawledDataCollection,
 		WebgraphCollection:    store.WebgraphCollection,
+		WordIndexCollection:   store.WordIndexCollection,
 	})
 	if err != nil {
 		log.Fatal().Err(err)

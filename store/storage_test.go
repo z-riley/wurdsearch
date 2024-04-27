@@ -114,10 +114,29 @@ func TestIterate(t *testing.T) {
 
 }
 
+func TestSaveWord(t *testing.T) {
+	db, err := NewStorageConn(getTestConfig())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Destroy()
+
+	if err := db.SaveWord(WordEntry{
+		Word: "testword",
+		References: map[string]uint{
+			"bonk.com":  2,
+			"boink.com": 99,
+		},
+	}); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func getTestConfig() StorageConfig {
 	return StorageConfig{
 		DatabaseName:          DatabaseName,
 		CrawledDataCollection: CrawledDataTestCollection,
 		WebgraphCollection:    WebgraphTestCollection,
+		WordIndexCollection:   WordIndexTestCollection,
 	}
 }
