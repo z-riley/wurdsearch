@@ -3,20 +3,23 @@ package testing
 import (
 	"fmt"
 	"os/exec"
+
+	"github.com/zac460/turdsearch/store"
 )
 
-const (
-	databaseName   = "turdsearch"
-	collectionName = "crawled_data_test"
-	f              = "/home/zac/repo/turdsearch/indexer/testing/turdsearch.crawled_data.json"
-)
+// ImportJson imports the contents of a file into a collection
+func ImportJson(filepath, database, collection string) error {
 
-// ImportJsonData imports the contents of a file into a collection
-func ImportJsonData(filepath, database, collection string) error {
+	// Make a new storage object to index collection by URL
+	db, err := store.NewStorageConn(store.StorageConfig{
+		DatabaseName:          database,
+		CrawledDataCollection: "crawled_data_test",
+		IndexedDataCollection: "indexed_data_test",
+	})
+	defer db.Destroy()
 
 	cmd := exec.Command("mongoimport", "--db", database, "--collection", collection, "--file", filepath, "--jsonArray")
-
-	_, err := cmd.CombinedOutput()
+	_, err = cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("Error running mongoimport: %v", err)
 	}
