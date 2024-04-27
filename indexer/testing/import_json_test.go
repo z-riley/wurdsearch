@@ -1,11 +1,15 @@
 package testing
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/zac460/turdsearch/store"
+)
 
 func TestImportJson(t *testing.T) {
 	const (
-		databaseName   = "turdsearch"
-		collectionName = "crawled_data_test"
+		databaseName   = store.DatabaseName
+		collectionName = store.CrawledDataTestCollection
 		f              = "/home/zac/repo/turdsearch/indexer/testing/turdsearch.crawled_data.json"
 	)
 

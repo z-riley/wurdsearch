@@ -13,8 +13,8 @@ func ImportJson(filepath, database, collection string) error {
 	// Make a new storage object to index collection by URL
 	db, err := store.NewStorageConn(store.StorageConfig{
 		DatabaseName:          database,
-		CrawledDataCollection: "crawled_data_test",
-		IndexedDataCollection: "indexed_data_test",
+		CrawledDataCollection: store.CrawledDataTestCollection,
+		WebgraphCollection:    store.WebgraphTestCollection,
 	})
 	defer db.Destroy()
 

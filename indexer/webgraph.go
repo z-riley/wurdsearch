@@ -1,20 +1,46 @@
 package main
 
-// node contains data about which other sites link to and from itself.
-// This is used to help calculate the "importance" of the site
-type node struct {
-	url       string   `bson:"url"`
-	linksTo   []string `bson:"linksTo"`
-	linksFrom []string `bson:"linksFrom"`
+import (
+	"fmt"
+
+	"github.com/zac460/turdsearch/store"
+)
+
+type Webgrapher struct {
+	db *store.Storage
 }
 
-type Webgrapher struct{}
-
-func NewWebgrapher() *Webgrapher {
-	return &Webgrapher{}
+func NewWebgrapher(db *store.Storage) *Webgrapher {
+	return &Webgrapher{
+		db: db,
+	}
 }
 
 // GenerateWebgraph generates a webgraph from the crawled data in the database
 func (w *Webgrapher) GenerateWebgraph() error {
+
+	if err := w.db.InitIterator(store.CrawledDataCollection); err != nil {
+		return err
+	}
+
+	// Iterate over every URL in the crawled data collection
+	for {
+		data, isMoreData, err := w.db.IterateNext()
+		if err != nil {
+			return err
+		}
+		if !isMoreData {
+			break
+		}
+
+		if err := w.db.SaveNode(store.Node{
+			Url:       data.Url,
+			LinksTo:   data.Links,
+			LinksFrom: []string{"todo"},
+		}); err != nil {
+			return fmt.Errorf("Failed to save node: %v", err)
+		}
+
+	}
 	return nil
 }

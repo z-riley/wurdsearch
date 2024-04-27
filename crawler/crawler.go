@@ -29,9 +29,9 @@ type Crawler struct {
 func NewCrawler(gracePeriod time.Duration) (*Crawler, error) {
 
 	db, err := store.NewStorageConn(store.StorageConfig{
-		DatabaseName:          "turdsearch",
-		CrawledDataCollection: "crawled_data",
-		IndexedDataCollection: "indexed_data",
+		DatabaseName:          store.DatabaseName,
+		CrawledDataCollection: store.CrawledDataCollection,
+		WebgraphCollection:    store.WebgraphCollection,
 	})
 	if err != nil {
 		log.Fatal().Err(err)

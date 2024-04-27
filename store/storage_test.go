@@ -9,7 +9,7 @@ import (
 func TestNewStorageConn(t *testing.T) {
 	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	defer db.Destroy()
 }
@@ -17,7 +17,7 @@ func TestNewStorageConn(t *testing.T) {
 func TestEnterPageData(t *testing.T) {
 	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	defer db.Destroy()
 
@@ -36,7 +36,7 @@ func TestEnterPageData(t *testing.T) {
 		},
 	} {
 		if err := db.SavePageData(data); err != nil {
-			t.Error(err)
+			t.Fatal(err)
 		}
 	}
 
@@ -45,14 +45,14 @@ func TestEnterPageData(t *testing.T) {
 func TestFetchPageData(t *testing.T) {
 	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	defer db.Destroy()
 
 	url := "https://example.com/"
 	data, err := db.FetchPageData(url)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	fmt.Printf("t: %+v\n", data)
 }
@@ -60,7 +60,7 @@ func TestFetchPageData(t *testing.T) {
 func TestPageIsRecentlyCrawled(t *testing.T) {
 	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	defer db.Destroy()
 
@@ -68,7 +68,7 @@ func TestPageIsRecentlyCrawled(t *testing.T) {
 	window := 24 * time.Hour
 	result, err := db.PageIsRecentlyCrawled(url, window)
 	if err != nil {
-		t.Error(t)
+		t.Fatal(t)
 	}
 
 	fmt.Printf("Page %s crawled in the last %v: %t\n", url, window, result)
@@ -77,23 +77,47 @@ func TestPageIsRecentlyCrawled(t *testing.T) {
 func TestPageLastCrawled(t *testing.T) {
 	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	defer db.Destroy()
 
 	url := "https://example.com/"
 	timeLastCrawled, err := db.PageLastCrawled(url)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	fmt.Printf("Page %s last crawled at %v", url, timeLastCrawled)
 }
 
+func TestIterate(t *testing.T) {
+	db, err := NewStorageConn(getTestConfig())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Destroy()
+
+	if err := db.InitIterator(CrawledDataTestCollection); err != nil {
+		t.Fatal(err)
+	}
+
+	isMoreData := true
+	for isMoreData {
+		var data PageData
+		var err error
+		data, isMoreData, err = db.IterateNext()
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Printf("%v\n", data.Url)
+	}
+
+}
+
 func getTestConfig() StorageConfig {
 	return StorageConfig{
-		DatabaseName:          "turdsearch",
-		CrawledDataCollection: "crawled_data",
-		IndexedDataCollection: "indexed_data",
+		DatabaseName:          DatabaseName,
+		CrawledDataCollection: CrawledDataTestCollection,
+		WebgraphCollection:    WebgraphTestCollection,
 	}
 }
