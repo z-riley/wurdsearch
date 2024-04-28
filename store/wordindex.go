@@ -13,7 +13,9 @@ import (
 // WordEntry contains which websites use a particular word, and how many times
 // it appears on each page
 type WordEntry struct {
-	Word       string               `bson:"word"`
+	// Word is the word in the entry
+	Word string `bson:"word"`
+	// References maps each URL to the number of occurrances and total length of the document
 	References map[string]Reference `bson:"references"`
 }
 
@@ -23,7 +25,7 @@ type Reference struct {
 }
 
 // Getword retrieves a word index document
-func (db *Storage) GetWord(word string) (WordEntry, error) {
+func (db *Storage) GetWordIndex(word string) (WordEntry, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
@@ -64,7 +66,7 @@ func (db *Storage) SaveWord(word WordEntry) error {
 // UpdateWordReference inserts or overwrites a word index document. Only one "url: count" reference may be added at a time
 func (db *Storage) UpdateWordReference(word, url string, count, totalWords uint) error {
 	// Manually read and overwrite document because Mongo can't handle "." characters in keys
-	wordEntry, err := db.GetWord(word)
+	wordEntry, err := db.GetWordIndex(word)
 	if errors.Is(err, mongo.ErrNoDocuments) {
 		// If no doc for that word exists, make one
 		wordEntry = WordEntry{

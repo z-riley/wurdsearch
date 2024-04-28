@@ -15,8 +15,6 @@ func NewSearcher(store *store.Storage) (*Searcher, error) {
 // Search executes a search, returning a slice of relevant documents
 func (s *Searcher) Search(term string) ([]store.PageData, error) {
 
-	s.TFIDF(term)
-
 	// Do weighted sum with other search algorithms once they're implemented
 
 	return []store.PageData{}, nil

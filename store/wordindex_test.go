@@ -5,14 +5,14 @@ import (
 	"testing"
 )
 
-func TestGetWord(t *testing.T) {
+func TestGetWordIndex(t *testing.T) {
 	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Destroy()
 
-	word, err := db.GetWord("testword")
+	word, err := db.GetWordIndex("testword")
 	if err != nil {
 		t.Fatal(err)
 	}
