@@ -34,8 +34,6 @@ func NewStorageConn(config StorageConfig) (*Storage, error) {
 		return nil, err
 	}
 
-	// TODO: put these in their own files
-
 	// Index crawled data by page URL
 	model := mongo.IndexModel{
 		Keys: bson.M{
@@ -105,8 +103,6 @@ func (db *Storage) InitIterator(collectionName string) error {
 	}
 	return nil
 }
-
-
 
 // NextPageData gets the next word entry document. InitIterator must be called first.
 // Returns true if there is more data to iterate over
