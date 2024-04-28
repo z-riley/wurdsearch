@@ -3,8 +3,8 @@ package store
 import (
 	"context"
 	"errors"
+	"fmt"
 
-	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -13,8 +13,13 @@ import (
 // WordEntry contains which websites use a particular word, and how many times
 // it appears on each page
 type WordEntry struct {
-	Word       string          `bson:"word"`
-	References map[string]uint `bson:"references"`
+	Word       string               `bson:"word"`
+	References map[string]Reference `bson:"references"`
+}
+
+type Reference struct {
+	Count  uint `bson:"count"`
+	Length uint `bson:"length"`
 }
 
 // Getword retrieves a word index document
@@ -48,33 +53,54 @@ func (db *Storage) SaveWord(word WordEntry) error {
 	}
 
 	if result.MatchedCount == 0 && result.UpsertedCount == 1 {
-		log.Debug().Msgf("Inserted new DB document for word: %s", word.Word)
+		// log.Trace().Msgf("Inserted new DB document for word: %s", word.Word)
 	} else if result.ModifiedCount == 1 {
-		log.Debug().Msgf("Updated existing DB document for word: %s", word.Word)
+		// log.Trace().Msgf("Updated existing DB document for word: %s", word.Word)
 	}
 
 	return nil
 }
 
 // UpdateWordReference inserts or overwrites a word index document. Only one "url: count" reference may be added at a time
-func (db *Storage) UpdateWordReference(word string, url string, count uint) error {
+func (db *Storage) UpdateWordReference(word, url string, count, totalWords uint) error {
 	// Manually read and overwrite document because Mongo can't handle "." characters in keys
 	wordEntry, err := db.GetWord(word)
 	if errors.Is(err, mongo.ErrNoDocuments) {
 		// If no doc for that word exists, make one
 		wordEntry = WordEntry{
 			Word: word,
-			References: map[string]uint{
-				url: count,
+			References: map[string]Reference{
+				url: {count, totalWords},
 			},
 		}
 	} else if err != nil {
 		return err
 	}
-	wordEntry.References[url] = count
+	wordEntry.References[url] = Reference{count, totalWords}
 	if err := db.SaveWord(wordEntry); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// NextPageData gets the next word entry document. InitIterator must be called first.
+// Returns true if there is more data to iterate over
+func (db *Storage) NextWordEntry() (WordEntry, bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
+	defer cancel()
+
+	if !db.cursor.Next(ctx) {
+		if err := db.cursor.Err(); err != nil {
+			return WordEntry{}, false, fmt.Errorf("Cursor error: %v", err)
+		}
+		return WordEntry{}, false, nil
+	}
+
+	var result WordEntry
+	if err := db.cursor.Decode(&result); err != nil {
+		return result, true, fmt.Errorf("Failed to decode word entry: %v", err)
+	}
+
+	return result, true, nil
 }

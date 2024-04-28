@@ -20,7 +20,7 @@ func TestGenerateWordIndex(t *testing.T) {
 
 	w := NewWordIndexer(db)
 
-	if err := w.GenerateWordIndex(); err != nil {
+	if err := w.GenerateWordIndex(db.Config.CrawledDataCollection); err != nil {
 		t.Fatal(err)
 	}
 }

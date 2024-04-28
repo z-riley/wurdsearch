@@ -26,7 +26,7 @@ func TestUpdateWordReference(t *testing.T) {
 	}
 	defer db.Destroy()
 
-	if err := db.UpdateWordReference("testword", "example.com", 1); err != nil {
+	if err := db.UpdateWordReference("testword", "example.com", 1, 1000); err != nil {
 		t.Fatal(err)
 	}
 }

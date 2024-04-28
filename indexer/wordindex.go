@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/rs/zerolog/log"
 	"github.com/zac460/turdsearch/store"
 )
 
@@ -19,13 +20,24 @@ func NewWordIndexer(db *store.Storage) *WordIndexer {
 }
 
 // GenerateWordIndex generates a word index from crawled page data
-func (w *WordIndexer) GenerateWordIndex() error {
+func (w *WordIndexer) GenerateWordIndex(collectionName string) error {
 
 	// Iterate through all crawled URLS
-	if err := w.db.InitIterator(store.CrawledDataCollection); err != nil {
+	if err := w.db.InitIterator(collectionName); err != nil {
 		return err
 	}
+
+	// Keep track of progress
+	length, err := w.db.Len(collectionName)
+	if err != nil {
+		return err
+	}
+	count := 0
+
 	for {
+		count++
+		log.Debug().Msgf("Generating word index. Progress: %d/%d", count, length)
+
 		pageData, more, err := w.db.NextPageData()
 		if err != nil {
 			return err
@@ -37,16 +49,18 @@ func (w *WordIndexer) GenerateWordIndex() error {
 		// Update word index for each word on the page
 		// This is horribly slow and should be improved at some point
 		wordMap := make(map[string]uint)
-		for _, word := range sanitiseString(strings.ToLower(pageData.Content)) {
+		words := sanitiseString(strings.ToLower(pageData.Content))
+		for _, word := range words {
 			wordMap[word] += 1
 		}
 		for word, count := range wordMap {
-			// Upsert the word in the DB with new {page url, how many times the word appears on that page}
-			if err := w.db.UpdateWordReference(word, pageData.Url, count); err != nil {
+			// Upsert the word in the DB with new data
+			wordCount := uint(len(words))
+			err := w.db.UpdateWordReference(word, pageData.Url, count, wordCount)
+			if err != nil {
 				return fmt.Errorf("Update word index for %s: %v", word, err)
 			}
 		}
-
 	}
 
 	return nil

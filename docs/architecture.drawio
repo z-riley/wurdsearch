@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="1x7rJs6VPrV9aM_ruFbb" name="Page-1">
-        <mxGraphModel dx="300" dy="956" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="315" dy="709" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" style="locked=1;" parent="0"/>
@@ -151,7 +151,7 @@
                         <mxPoint x="1040" y="800" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="107" value="&lt;span style=&quot;font-size: 11px;&quot;&gt;Indexed data: Word index&lt;br&gt;&lt;table cellpadding=&quot;4&quot; style=&quot;border: 1px solid rgb(128, 128, 128); border-collapse: collapse; font-size: 10px;&quot; border=&quot;1&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Word:&lt;/td&gt;&lt;td&gt;References:&lt;/td&gt;&lt;/tr&gt;&lt;tr style=&quot;&quot;&gt;&lt;td&gt;example&lt;/td&gt;&lt;td&gt;my_doc_1: x5&lt;br&gt;my_doc_2: x1&lt;br&gt;my_doc_3: x1&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;br&gt;&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="42" vertex="1">
+                <mxCell id="107" value="&lt;span style=&quot;font-size: 11px;&quot;&gt;&lt;br&gt;Indexed data: Word index&lt;br&gt;&lt;table cellpadding=&quot;4&quot; style=&quot;border: 1px solid rgb(128, 128, 128); border-collapse: collapse; font-size: 10px;&quot; border=&quot;1&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Word:&lt;/td&gt;&lt;td&gt;References:&lt;br&gt;{count, length}&lt;/td&gt;&lt;/tr&gt;&lt;tr style=&quot;font-size: 9px;&quot;&gt;&lt;td&gt;example&lt;/td&gt;&lt;td&gt;my_doc_1: {5, 1000}&lt;br&gt;my_doc_2: {1, 200}&lt;br&gt;my_doc_3: {1, 3000}&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;br&gt;&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="42" vertex="1">
                     <mxGeometry x="1060" y="660" width="140" height="100" as="geometry"/>
                 </mxCell>
                 <mxCell id="108" value="&lt;b id=&quot;docs-internal-guid-4c3daddd-7fff-4328-77ed-68447372e109&quot; style=&quot;font-weight:normal;&quot;&gt;&lt;span style=&quot;font-size: 11pt; font-family: Arial, sans-serif; color: rgb(0, 0, 0); background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;&quot;&gt;&lt;span style=&quot;border:none;display:inline-block;overflow:hidden;width:187px;height:152px;&quot;&gt;&lt;img style=&quot;margin-left:0px;margin-top:0px;&quot; height=&quot;152&quot; width=&quot;187&quot; src=&quot;https://lh7-us.googleusercontent.com/Nt4CwxkVz_8wb01QkDNE_dRlhrWfavXAkZP5JBOPts0ED5Um5rmFxaHN1rQJXf2i-1aqxJQJtyeUlJ2ofqGYWiD3vYbOORzW4qxJOay-mKJ07PB4q4ThbmZPNIxdxJwphAMHFyxJfNTUkvkdmU3bXAM&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/b&gt;" style="text;whiteSpace=wrap;html=1;fontSize=11;" parent="42" vertex="1">
