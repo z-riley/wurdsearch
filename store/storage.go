@@ -104,23 +104,19 @@ func (db *Storage) InitIterator(collectionName string) error {
 	return nil
 }
 
-// NextPageData gets the next word entry document. InitIterator must be called first.
-// Returns true if there is more data to iterate over
-func (db *Storage) NextWordEntry() (WordEntry, bool, error) {
+// Len returns the number of documents in a collection
+func (db *Storage) Len(collectionName string) (int64, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
-	if !db.cursor.Next(ctx) {
-		if err := db.cursor.Err(); err != nil {
-			return WordEntry{}, false, fmt.Errorf("Cursor error: %v", err)
-		}
-		return WordEntry{}, false, nil
+	collection := db.client.Database(db.Config.DatabaseName).Collection(collectionName)
+	// Improve performance by using a hint to take advantage of the built-in index on
+	// the _id field. See https://www.mongodb.com/docs/drivers/go/upcoming/fundamentals/crud/read-operations/count/
+	opts := options.Count().SetHint("_id_")
+	length, err := collection.CountDocuments(ctx, bson.D{}, opts)
+	if err != nil {
+		return 0, err
 	}
 
-	var result WordEntry
-	if err := db.cursor.Decode(&result); err != nil {
-		return result, true, fmt.Errorf("Failed to decode word entry: %v", err)
-	}
-
-	return result, true, nil
+	return length, nil
 }
