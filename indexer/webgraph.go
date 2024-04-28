@@ -25,11 +25,11 @@ func (w *Webgrapher) GenerateWebgraph() error {
 
 	// Iterate over every URL in the crawled data collection
 	for {
-		data, isMoreData, err := w.db.IterateNext()
+		data, more, err := w.db.IterateNext()
 		if err != nil {
 			return err
 		}
-		if !isMoreData {
+		if !more {
 			break
 		}
 

@@ -114,20 +114,28 @@ func TestIterate(t *testing.T) {
 
 }
 
-func TestSaveWord(t *testing.T) {
+func TestGetWord(t *testing.T) {
 	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Destroy()
 
-	if err := db.SaveWord(WordEntry{
-		Word: "testword",
-		References: map[string]uint{
-			"bonk.com":  2,
-			"boink.com": 99,
-		},
-	}); err != nil {
+	word, err := db.GetWord("testword")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("%+v\n", word)
+}
+
+func TestUpdateWordReference(t *testing.T) {
+	db, err := NewStorageConn(getTestConfig())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Destroy()
+
+	if err := db.UpdateWordReference("testword", "example.com", 1); err != nil {
 		t.Fatal(err)
 	}
 }
