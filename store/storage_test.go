@@ -90,7 +90,7 @@ func TestPageLastCrawled(t *testing.T) {
 	fmt.Printf("Page %s last crawled at %v", url, timeLastCrawled)
 }
 
-func TestIterate(t *testing.T) {
+func TestNextPageData(t *testing.T) {
 	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
 		t.Fatal(err)
@@ -105,7 +105,7 @@ func TestIterate(t *testing.T) {
 	for isMoreData {
 		var data PageData
 		var err error
-		data, isMoreData, err = db.IterateNext()
+		data, isMoreData, err = db.NextPageData()
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -25,7 +25,7 @@ func (w *Webgrapher) GenerateWebgraph() error {
 
 	// Iterate over every URL in the crawled data collection
 	for {
-		data, more, err := w.db.IterateNext()
+		data, more, err := w.db.NextPageData()
 		if err != nil {
 			return err
 		}
