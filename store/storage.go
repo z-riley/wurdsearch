@@ -34,6 +34,8 @@ func NewStorageConn(config StorageConfig) (*Storage, error) {
 		return nil, err
 	}
 
+	// TODO: put these in their own files
+
 	// Index crawled data by page URL
 	model := mongo.IndexModel{
 		Keys: bson.M{
@@ -104,26 +106,7 @@ func (db *Storage) InitIterator(collectionName string) error {
 	return nil
 }
 
-// NextPageData gets the next page data document. InitIterator must be called first.
-// Returns true if there is more data to iterate over
-func (db *Storage) NextPageData() (PageData, bool, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
-	defer cancel()
 
-	if !db.cursor.Next(ctx) {
-		if err := db.cursor.Err(); err != nil {
-			return PageData{}, false, fmt.Errorf("Cursor error: %v", err)
-		}
-		return PageData{}, false, nil
-	}
-
-	var result PageData
-	if err := db.cursor.Decode(&result); err != nil {
-		return result, true, fmt.Errorf("Failed to decode page data: %v", err)
-	}
-
-	return result, true, nil
-}
 
 // NextPageData gets the next word entry document. InitIterator must be called first.
 // Returns true if there is more data to iterate over
