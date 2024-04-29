@@ -30,8 +30,12 @@ func (s *Searcher) TFIDF(searchTerm string) error {
 	fmt.Println(vectors)
 
 	// 2. Get search term vector
-	searchVec := s.searchTermVector(words)
+	searchVec, err := s.generateVector("searchTerm", words)
+	if err != nil {
+		return err
+	}
 	fmt.Println(searchVec)
+
 	// 3. Compare each vectors to search term vector
 
 	return nil
@@ -71,7 +75,7 @@ func (s *Searcher) generateVector(url string, searchWords []string) (vector, err
 }
 
 // searchTermVector gets the TF-IDF vector the search term
-func (s *Searcher) searchTermVector(words []string) vector {
+func (s *Searcher) searchTermVector(words []string) (vector, error) {
 	result := vector{
 		label: "searchTerm",
 		val:   map[string]float64{},
@@ -86,11 +90,16 @@ func (s *Searcher) searchTermVector(words []string) vector {
 	// Get TF-IDF of each word in search term
 	for word, count := range wordCounts {
 		TF := float64(count) / float64(len(words))
-		IDF := 1.0 // always 1 because there is only one document
+
+		IDF, err := s.inverseDocumentFrequency(word)
+		if err != nil {
+			return result, err
+		}
+
 		result.val[word] = TF * IDF
 	}
 
-	return result
+	return result, nil
 }
 
 // getEveryRelevantDoc retrieves the URL of every document that contains any of the words in the search term
