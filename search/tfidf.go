@@ -9,6 +9,35 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// vector holds an n-dimensional vector with with value for each dimension
+type vector struct {
+	label string
+	val   map[string]float64
+}
+
+// mod calculates the modulus (magnitude) of a vector
+func (v *vector) mod() float64 {
+	sum := 0.0
+	for _, val := range v.val {
+		sum += (val * val)
+	}
+	return math.Sqrt(sum)
+}
+
+// theta returns the angle (in radians) between two vectors
+func theta(a vector, b vector) float64 {
+	return math.Acos(dotProduct(a, b) / (a.mod() * b.mod()))
+}
+
+// dotProduct calculates the dot product of two vectors. It is assumed that vector.vals contain the same keys
+func dotProduct(a vector, b vector) float64 {
+	sum := 0.0
+	for word := range a.val {
+		sum += a.val[word] * b.val[word]
+	}
+	return sum
+}
+
 func (s *Searcher) TFIDF(searchTerm string) error {
 
 	// Calculate search vectors
@@ -30,7 +59,7 @@ func (s *Searcher) TFIDF(searchTerm string) error {
 	fmt.Println(vectors)
 
 	// 2. Get search term vector
-	searchVec, err := s.generateVector("searchTerm", words)
+	searchVec, err := s.searchTermVector(words)
 	if err != nil {
 		return err
 	}
@@ -39,12 +68,6 @@ func (s *Searcher) TFIDF(searchTerm string) error {
 	// 3. Compare each vectors to search term vector
 
 	return nil
-}
-
-// vector holds n dimensional vector with with value for each dimension
-type vector struct {
-	label string
-	val   map[string]float64
 }
 
 // generateVector calcuates a search vector for a given search term for a page
