@@ -1,7 +1,9 @@
 package search
 
 import (
+	"fmt"
 	"reflect"
+	"sort"
 	"testing"
 
 	"github.com/zac460/turdsearch/store"
@@ -18,28 +20,44 @@ func TestSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	UNUSED(results)
+
+	// Print results in ascending order
+	type Entry struct {
+		Key   string
+		Value float64
+	}
+
+	var entries []Entry
+	for key, value := range results {
+		entries = append(entries, Entry{Key: key, Value: value})
+	}
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].Value < entries[j].Value // Descending order
+	})
+	for _, entry := range entries {
+		fmt.Printf("%.3f%% - %s\n", entry.Value, entry.Key)
+	}
 }
 
 func TestMergeScores(t *testing.T) {
-	a := pageScores{
+	a := PageScores{
 		"url1": 1,
 		"url2": 2,
 		"url3": 3,
 		"url4": 4,
 	}
-	b := pageScores{
+	b := PageScores{
 		"url3": 1,
 		"url4": 2,
 		"url5": 3,
 		"url6": 4,
 	}
 	weights := []float64{1.0, 4.0}
-	result, err := mergeScores([]pageScores{a, b}, weights)
+	result, err := mergeScores([]PageScores{a, b}, weights)
 	if err != nil {
 		t.Fatal(err)
 	}
-	expected := pageScores{
+	expected := PageScores{
 		"url1": 1,
 		"url2": 2,
 		"url3": 7,
@@ -51,18 +69,18 @@ func TestMergeScores(t *testing.T) {
 		t.Error("Result not equal to expected")
 	}
 
-	c := pageScores{
+	c := PageScores{
 		"url1": 2,
 		"url2": 4,
 		"url6": 6,
 		"url7": 8,
 	}
 	weights = []float64{1.0, 4.0, 0.5}
-	result, err = mergeScores([]pageScores{a, b, c}, weights)
+	result, err = mergeScores([]PageScores{a, b, c}, weights)
 	if err != nil {
 		t.Fatal(err)
 	}
-	expected = pageScores{
+	expected = PageScores{
 		"url1": 2,
 		"url2": 4,
 		"url3": 7,
@@ -88,5 +106,3 @@ func getTestDB(t *testing.T) *store.Storage {
 	}
 	return db
 }
-
-func UNUSED(x ...any) {}

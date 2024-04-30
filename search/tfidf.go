@@ -11,19 +11,19 @@ import (
 
 // TFIDF performs a TF-IDF search and returns relevant URLs and match confidence
 // as a percentage
-func (s *Searcher) TFIDF(query string) (pageScores, error) {
+func (s *Searcher) TFIDF(query string) (PageScores, error) {
 
 	// 1. Calculate page vectors
 	words := strings.Split(query, " ")
 	urls, err := s.getEveryRelevantDoc(words)
 	if err != nil {
-		return pageScores{}, err
+		return PageScores{}, err
 	}
 	var vectors []vector
 	for _, url := range urls {
 		v, err := s.generateVector(url, words)
 		if err != nil {
-			return pageScores{}, err
+			return PageScores{}, err
 		}
 		vectors = append(vectors, v)
 	}
@@ -31,12 +31,12 @@ func (s *Searcher) TFIDF(query string) (pageScores, error) {
 	// 2. Get query vector
 	queryVec, err := s.queryVector(words)
 	if err != nil {
-		return pageScores{}, err
+		return PageScores{}, err
 	}
 	log.Debug().Msgf("Seach vector: %v", queryVec)
 
 	// 3. Compare the query vector to each page vector
-	scores := make(pageScores)
+	scores := make(PageScores)
 	for _, pageVec := range vectors {
 		theta := theta(queryVec, pageVec)
 		percent := 100 * (1 - theta/math.Pi)
@@ -119,8 +119,8 @@ func (s *Searcher) getEveryRelevantDoc(words []string) ([]string, error) {
 // termFrequencies returns the TFs of a specified word in every document.
 // The TF is the number of times a word appears in a document divided by the total number
 // of words in the document
-func (s *Searcher) termFrequencies(word string) (pageScores, error) {
-	TFs := make(pageScores)
+func (s *Searcher) termFrequencies(word string) (PageScores, error) {
+	TFs := make(PageScores)
 
 	// Get all links which contain that word
 	doc, err := s.db.GetWordIndex(word)

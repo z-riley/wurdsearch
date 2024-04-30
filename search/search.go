@@ -2,7 +2,6 @@ package search
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/zac460/turdsearch/store"
@@ -24,23 +23,26 @@ type Result struct {
 }
 
 // Search executes a search, returning a slice of relevant documents
-func (s *Searcher) Search(query string) ([]store.PageData, error) {
+func (s *Searcher) Search(query string) (PageScores, error) {
 
 	query = sanitiseQuery(query)
 
 	// TF-IDF
-	results, err := s.TFIDF(query)
+	TFIDFScores, err := s.TFIDF(query)
 	if err != nil {
-		return []store.PageData{}, err
-	}
-
-	for url, score := range results {
-		fmt.Printf("%2.f%%\t%s\n", score, url)
+		return PageScores{}, err
 	}
 
 	// Do weighted sum with other search algorithms once they're implemented
+	finalScores, err := mergeScores(
+		[]PageScores{TFIDFScores},
+		[]float64{1.0},
+	)
+	if err != nil {
+		return PageScores{}, err
+	}
 
-	return []store.PageData{}, nil
+	return finalScores, nil
 }
 
 // sanitiseQuery sanitise a search query before use in search algorithms
@@ -50,13 +52,13 @@ func sanitiseQuery(query string) string {
 	return query
 }
 
-// pageScores holds number scores for URLs
-type pageScores map[string]float64
+// PageScores holds number scores for URLs
+type PageScores map[string]float64
 
 // mergeScores combines serach results according to their given weightings
-func mergeScores(scores []pageScores, weights []float64) (pageScores, error) {
+func mergeScores(scores []PageScores, weights []float64) (PageScores, error) {
 	if len(scores) != len(weights) {
-		return pageScores{}, errors.New("pageScores and weights length mismatch")
+		return PageScores{}, errors.New("pageScores and weights length mismatch")
 	}
 
 	// Extract every URL from page scores
@@ -69,7 +71,7 @@ func mergeScores(scores []pageScores, weights []float64) (pageScores, error) {
 	}
 
 	// Add up scores, accounting for weights
-	output := make(pageScores)
+	output := make(PageScores)
 	for url := range allUrls {
 		for i, score := range scores {
 			val, exists := score[url]
