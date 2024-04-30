@@ -29,9 +29,9 @@ func main() {
 	defer c.Destroy()
 
 	seeds := []string{
+		"https://en.wikipedia.org/wiki/Imperial_Crypt",
 		"https://puginarug.com/",
 		"https://www.varroaresistant.uk/",
-		"https://en.wikipedia.org/wiki/Imperial_Crypt",
 		"https://parade.com/1116816/marynliles/fun-websites/",
 	}
 	if err := c.SetSeeds(seeds); err != nil {

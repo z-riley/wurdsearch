@@ -1,6 +1,7 @@
 package frontier
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -16,7 +17,7 @@ func TestPush(t *testing.T) {
 	}
 
 	if err := f.Push("d"); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	err := f.Push("a")
@@ -33,7 +34,7 @@ func TestGetAll(t *testing.T) {
 
 	contents, err := f.GetAll()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if !reflect.DeepEqual(contents, sampleCrawledUrls()) {
@@ -41,25 +42,27 @@ func TestGetAll(t *testing.T) {
 	}
 }
 
-func TestCountTopOccurrances(t *testing.T) {
-	// TODO:
-}
+func TestTopNWebsites(t *testing.T) {
+	f := NewFrontier()
+	for _, item := range sampleCrawledUrls() {
+		if err := f.Push(item); err != nil {
+			t.Fatal(err)
+		}
+	}
 
-func TestCountOccurrances(t *testing.T) {
-	actual, err := CountOccurrances(sampleCrawledUrls())
+	result, err := f.TopNWebsites(10)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-	if !reflect.DeepEqual(actual, map[string]int{
-		"reddit.com":          62,
-		"www.telegraph.co.uk": 2,
-	}) {
-		t.Error("Actaul not not equal expected")
-	}
+	fmt.Println(result)
+
 }
 
 func sampleCrawledUrls() []string {
 	return []string{
+		"https://rue.wikipedia.org",
+		"https://sah.wikipedia.org",
+		"https://sat.wikipedia.org",
 		"https://reddit.com/r/popular/hot/?geo_filter=us",
 		"https://reddit.com/r/popular/hot/?geo_filter=ar",
 		"https://reddit.com/r/popular/hot/?geo_filter=au",
@@ -97,21 +100,13 @@ func sampleCrawledUrls() []string {
 		"https://reddit.com/r/popular/hot/?geo_filter=gb",
 		"https://reddit.com/?feedViewType=cardView",
 		"https://reddit.com/?feedViewType=compactView",
-		"https://reddit.com/r/unitedkingdom/comments/1c69zby/jk_rowling_gets_apology_from_journalist_after/",
-		"https://reddit.com/r/unitedkingdom/",
 		"https://reddit.com/r/unitedkingdom/",
 		"https://reddit.com/r/unitedkingdom/comments/1c69zby/jk_rowling_gets_apology_from_journalist_after/",
 		"https://www.telegraph.co.uk/news/2024/04/16/jk-rowling-holocaust-denier-allegation-rivkah-brown-novara/",
-		"https://www.telegraph.co.uk/news/2024/04/16/jk-rowling-holocaust-denier-allegation-rivkah-brown-novara/",
-		"https://reddit.com/r/AskUK/comments/1c66aak/whats_the_worst_work_gift_youve_ever_received/",
 		"https://reddit.com/r/AskUK/",
-		"https://reddit.com/r/AskUK/",
-		"https://reddit.com/r/AskUK/comments/1c66aak/whats_the_worst_work_gift_youve_ever_received/",
 		"https://reddit.com/r/AskUK/comments/1c66aak/whats_the_worst_work_gift_youve_ever_received/",
 		"https://reddit.com/r/london/comments/1c6c87e/please_help_find_my_missing_friend/",
 		"https://reddit.com/r/london/",
-		"https://reddit.com/r/london/",
-		"https://reddit.com/r/london/comments/1c6c87e/please_help_find_my_missing_friend/",
 		"https://reddit.com/r/DestinyTheGame",
 		"https://reddit.com/r/anime",
 		"https://reddit.com/r/destiny2",

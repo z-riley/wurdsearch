@@ -3,7 +3,7 @@ package frontier
 import (
 	"fmt"
 	"net/url"
-	"slices"
+	"sort"
 
 	"github.com/enriquebris/goconcurrentqueue"
 )
@@ -20,7 +20,7 @@ func NewFrontier() *Frontier {
 
 // Push puts an item at the back of the frontier queue. Returns error if the item already exists
 func (f *Frontier) Push(item any) error {
-	if f.contains(item) {
+	if f.Contains(item) {
 		return fmt.Errorf("Frontier already contains: %v", item)
 	} else {
 		err := f.queue.Enqueue(item)
@@ -54,42 +54,51 @@ func (f *Frontier) Len() int {
 	return f.queue.GetLen()
 }
 
-// Contains returns true if frontier contains the a given item
-func (f *Frontier) Contains(item any) bool {
-	return slices.Contains(f.queue.Slice, item)
-}
-
 type Row struct {
 	Val   string
 	Count int
 }
 
-// TODO: topWebSites gets the most common websites in the frontier, ordered by count
-func (f *Frontier) CountTopOccurrances() ([]Row, error) {
-	return []Row{}, nil
+// TopNWebsites gets the most common websites in the frontier, ordered by number of occurances
+func (f *Frontier) TopNWebsites(n int) ([]Row, error) {
+	// Map to count the occurrence of each website
+	counts := make(map[string]int)
+	for _, item := range f.queue.Slice {
+		link, ok := item.(string)
+		if !ok {
+			return []Row{}, fmt.Errorf("found non-string item in frontier: %v", item)
+		}
+		parsedUrl, err := url.Parse(link)
+		if err != nil {
+			return []Row{}, err
+		}
+		url := parsedUrl.Scheme + "://" + parsedUrl.Host
+		counts[url]++
+	}
+
+	var rows []Row
+	for website, count := range counts {
+		rows = append(rows, Row{Val: website, Count: count})
+	}
+
+	sort.Slice(rows, func(i, j int) bool {
+		return rows[i].Count > rows[j].Count
+	})
+
+	if n > len(rows) {
+		n = len(rows)
+	}
+	return rows[:n], nil
 }
 
-// contains checks if an item exists in the frontier queue
-func (f *Frontier) contains(item any) bool {
+// Contains checks if an item exists in the frontier queue
+func (f *Frontier) Contains(item any) bool {
 	for _, a := range f.queue.Slice {
 		if a == item {
 			return true
 		}
 	}
 	return false
-}
-
-// CountOccurrances returns a map of the most common strings in a slice and their respective counts
-func CountOccurrances(urls []string) (map[string]int, error) {
-	result := make(map[string]int)
-	for _, URL := range urls {
-		parsedUrl, err := url.Parse(URL)
-		if err != nil {
-			return result, err
-		}
-		result[parsedUrl.Host] += 1
-	}
-	return result, nil
 }
 
 // toStringSlice returns a copy of an any slice as a string slice

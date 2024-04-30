@@ -96,11 +96,6 @@ func (c *Crawler) crawlingSequence() error {
 	// 3. Put new links into frontier if the pages haven't been scraped recently
 	for _, link := range data.Links {
 
-		// Check if link not already in frontier
-		if c.frontier.Contains(link) {
-			continue
-		}
-
 		// Check if link was crawled recently
 		isCrawledRecently, err := c.db.PageIsRecentlyCrawled(link, c.gracePeriod)
 		if err != nil {
@@ -122,16 +117,12 @@ func (c *Crawler) crawlingSequence() error {
 		return err
 	}
 
-	// (5. Log frontier diagnostics)
-	q, err := c.frontier.GetAll()
+	// 5. Log frontier diagnostics
+	m, err := c.frontier.TopNWebsites(10)
 	if err != nil {
 		return err
 	}
-	m, err := frontier.CountOccurrances(q)
-	if err != nil {
-		return err
-	}
-	log.Info().Any("map", m).Msg("Frontier diagnostics")
+	log.Info().Any("Top 10 websites", m).Msg("Frontier diagnostics")
 
 	return nil
 }
