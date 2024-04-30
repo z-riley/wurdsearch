@@ -2,83 +2,60 @@ package search
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"strings"
 
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// vector holds an n-dimensional vector with with value for each dimension
-type vector struct {
-	label string
-	val   map[string]float64
-}
+// TFIDF performs a TF-IDF search and returns relevant URLs and match confidence
+// as a percentage
+func (s *Searcher) TFIDF(query string) (pageScores, error) {
 
-// mod calculates the modulus (magnitude) of a vector
-func (v *vector) mod() float64 {
-	sum := 0.0
-	for _, val := range v.val {
-		sum += (val * val)
-	}
-	return math.Sqrt(sum)
-}
-
-// theta returns the angle (in radians) between two vectors
-func theta(a vector, b vector) float64 {
-	return math.Acos(dotProduct(a, b) / (a.mod() * b.mod()))
-}
-
-// dotProduct calculates the dot product of two vectors. It is assumed that vector.vals contain the same keys
-func dotProduct(a vector, b vector) float64 {
-	sum := 0.0
-	for word := range a.val {
-		sum += a.val[word] * b.val[word]
-	}
-	return sum
-}
-
-func (s *Searcher) TFIDF(searchTerm string) error {
-
-	// Calculate search vectors
-	searchTerm = strings.ToLower(searchTerm)
-	searchTerm = strings.TrimSpace(searchTerm)
-	words := strings.Split(searchTerm, " ")
+	// 1. Calculate page vectors
+	words := strings.Split(query, " ")
 	urls, err := s.getEveryRelevantDoc(words)
 	if err != nil {
-		return err
+		return pageScores{}, err
 	}
 	var vectors []vector
 	for _, url := range urls {
 		v, err := s.generateVector(url, words)
 		if err != nil {
-			return err
+			return pageScores{}, err
 		}
 		vectors = append(vectors, v)
 	}
-	fmt.Println(vectors)
 
-	// 2. Get search term vector
-	searchVec, err := s.searchTermVector(words)
+	// 2. Get query vector
+	queryVec, err := s.queryVector(words)
 	if err != nil {
-		return err
+		return pageScores{}, err
 	}
-	fmt.Println(searchVec)
+	log.Debug().Msgf("Seach vector: %v", queryVec)
 
-	// 3. Compare each vectors to search term vector
+	// 3. Compare the query vector to each page vector
+	scores := make(pageScores)
+	for _, pageVec := range vectors {
+		theta := theta(queryVec, pageVec)
+		percent := 100 * (1 - theta/math.Pi)
+		scores[pageVec.label] = percent
+	}
 
-	return nil
+	// TODO: fix NaN results in multi-word search terms
+
+	return scores, nil
 }
 
-// generateVector calcuates a search vector for a given search term for a page
-func (s *Searcher) generateVector(url string, searchWords []string) (vector, error) {
+// generateVector calcuates a vector for a given query on a page
+func (s *Searcher) generateVector(url string, queryWords []string) (vector, error) {
 	v := vector{
 		label: url,
 		val:   make(map[string]float64),
 	}
 
-	for _, word := range searchWords {
-
+	for _, word := range queryWords {
 		TFs, err := s.termFrequencies(word)
 		if err != nil {
 			return v, err
@@ -90,17 +67,16 @@ func (s *Searcher) generateVector(url string, searchWords []string) (vector, err
 		if err != nil {
 			return v, err
 		}
-
 		v.val[word] = TF * IDF
 	}
 
 	return v, nil
 }
 
-// searchTermVector gets the TF-IDF vector the search term
-func (s *Searcher) searchTermVector(words []string) (vector, error) {
+// queryVector gets the TF-IDF vector a query
+func (s *Searcher) queryVector(words []string) (vector, error) {
 	result := vector{
-		label: "searchTerm",
+		label: "query",
 		val:   map[string]float64{},
 	}
 
@@ -110,27 +86,27 @@ func (s *Searcher) searchTermVector(words []string) (vector, error) {
 		wordCounts[word] += 1
 	}
 
-	// Get TF-IDF of each word in search term
+	// Get TF-IDF of each word in search query
 	for word, count := range wordCounts {
 		TF := float64(count) / float64(len(words))
-
 		IDF, err := s.inverseDocumentFrequency(word)
 		if err != nil {
 			return result, err
 		}
-
 		result.val[word] = TF * IDF
 	}
 
 	return result, nil
 }
 
-// getEveryRelevantDoc retrieves the URL of every document that contains any of the words in the search term
+// getEveryRelevantDoc retrieves the URL of every document that contains any of the words in the search query
 func (s *Searcher) getEveryRelevantDoc(words []string) ([]string, error) {
 	var urls []string
 	for _, word := range words {
 		wordIndexes, err := s.db.GetWordIndex(word)
-		if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			continue
+		} else if err != nil {
 			return urls, err
 		}
 		for url := range wordIndexes.References {
@@ -140,18 +116,17 @@ func (s *Searcher) getEveryRelevantDoc(words []string) ([]string, error) {
 	return urls, nil
 }
 
-// pageTFs holds TF scores for URLs
-type pageTFs map[string]float64
-
 // termFrequencies returns the TFs of a specified word in every document.
 // The TF is the number of times a word appears in a document divided by the total number
 // of words in the document
-func (s *Searcher) termFrequencies(word string) (pageTFs, error) {
-	TFs := make(pageTFs)
+func (s *Searcher) termFrequencies(word string) (pageScores, error) {
+	TFs := make(pageScores)
 
 	// Get all links which contain that word
 	doc, err := s.db.GetWordIndex(word)
-	if err != nil {
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return TFs, nil
+	} else if err != nil {
 		return TFs, err
 	}
 

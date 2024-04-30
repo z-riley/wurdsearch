@@ -2,115 +2,9 @@ package search
 
 import (
 	"fmt"
-	"math"
 	"strings"
 	"testing"
-
-	"github.com/zac460/turdsearch/store"
 )
-
-func TestTheta(t *testing.T) {
-	a := vector{
-		label: "a",
-		val: map[string]float64{
-			"one":   1,
-			"two":   2,
-			"three": 3,
-		},
-	}
-	b := vector{
-		label: "b",
-		val: map[string]float64{
-			"one":   1,
-			"two":   2,
-			"three": 3,
-		},
-	}
-	th := theta(a, b)
-	expected := 0.0
-	if th != expected {
-		t.Errorf("Actual (%f) did not equal expected (%f)", th, expected)
-	}
-
-	a = vector{
-		label: "a",
-		val: map[string]float64{
-			"one":   1,
-			"two":   2,
-			"three": 3,
-		},
-	}
-	b = vector{
-		label: "b",
-		val: map[string]float64{
-			"three": -3,
-			"one":   -1,
-			"two":   -2,
-		},
-	}
-	th = theta(a, b)
-	expected = math.Pi
-	if th != expected {
-		t.Errorf("Actual (%f) did not equal expected (%f)", th, expected)
-	}
-}
-
-func TestDotProduct(t *testing.T) {
-	a := vector{
-		label: "a",
-		val: map[string]float64{
-			"one":   1,
-			"two":   2,
-			"three": 3,
-			"four":  4,
-		},
-	}
-	b := vector{
-		label: "b",
-		val: map[string]float64{
-			"four":  4,
-			"two":   2,
-			"three": 3,
-			"one":   1,
-		},
-	}
-
-	dp := dotProduct(a, b)
-	expected := 30.0
-	if dp != expected {
-		t.Error("Actual did not equal expected")
-	}
-}
-
-func TestMod(t *testing.T) {
-	v := vector{
-		label: "a",
-		val: map[string]float64{
-			"one":   1,
-			"two":   2,
-			"three": 3,
-			"four":  -4,
-		},
-	}
-	mod := v.mod()
-	expected := math.Sqrt(30.0)
-	if mod != expected {
-		t.Error("Actual did not equal expected")
-	}
-
-	v = vector{
-		label: "a",
-		val: map[string]float64{
-			"one": 0,
-			"two": 0,
-		},
-	}
-	mod = v.mod()
-	expected = 0.0
-	if mod != expected {
-		t.Error("Actual did not equal expected")
-	}
-}
 
 func TestTFIDF(t *testing.T) {
 	s, err := NewSearcher(getTestDB(t))
@@ -118,11 +12,12 @@ func TestTFIDF(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = s.TFIDF("good advice")
+	query := "I have varroa"
+	results, err := s.TFIDF(query)
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	fmt.Println(results)
 }
 func TestGenerateVector(t *testing.T) {
 	s, err := NewSearcher(getTestDB(t))
@@ -154,7 +49,7 @@ func TestSearchTermVector(t *testing.T) {
 	}
 
 	searchWords := strings.Split("the quick quick fox", " ")
-	result, err := s.searchTermVector(searchWords)
+	result, err := s.queryVector(searchWords)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,17 +95,4 @@ func TestInverseDocumentFrequency(t *testing.T) {
 	}
 	fmt.Println(result)
 
-}
-
-func getTestDB(t *testing.T) *store.Storage {
-	db, err := store.NewStorageConn(store.StorageConfig{
-		DatabaseName:          store.DatabaseName,
-		CrawledDataCollection: store.CrawledDataTestCollection,
-		WebgraphCollection:    store.WebgraphTestCollection,
-		WordIndexCollection:   store.WordIndexTestCollection,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	return db
 }
