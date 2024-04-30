@@ -1,6 +1,7 @@
 package search
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -53,6 +54,29 @@ func sanitiseQuery(query string) string {
 type pageScores map[string]float64
 
 // mergeScores combines serach results according to their given weightings
-func mergeScores(...pageScores) {
+func mergeScores(scores []pageScores, weights []float64) (pageScores, error) {
+	if len(scores) != len(weights) {
+		return pageScores{}, errors.New("pageScores and weights length mismatch")
+	}
 
+	// Extract every URL from page scores
+	// Exploit that maps contain unique keys to only get one of each URL
+	allUrls := make(map[string]float64)
+	for _, score := range scores {
+		for url := range score {
+			allUrls[url] = 0.0
+		}
+	}
+
+	// Add up scores, accounting for weights
+	output := make(pageScores)
+	for url := range allUrls {
+		for i, score := range scores {
+			val, exists := score[url]
+			if exists {
+				output[url] += (val * weights[i])
+			}
+		}
+	}
+	return output, nil
 }
