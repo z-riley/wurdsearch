@@ -3,6 +3,7 @@ package frontier
 import (
 	"fmt"
 	"net/url"
+	"slices"
 
 	"github.com/enriquebris/goconcurrentqueue"
 )
@@ -51,6 +52,11 @@ func (f *Frontier) GetAll() ([]string, error) {
 // GetLen returns the number elements in the frontier
 func (f *Frontier) Len() int {
 	return f.queue.GetLen()
+}
+
+// Contains returns true if frontier contains the a given item
+func (f *Frontier) Contains(item any) bool {
+	return slices.Contains(f.queue.Slice, item)
 }
 
 type Row struct {

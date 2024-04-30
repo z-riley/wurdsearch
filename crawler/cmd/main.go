@@ -41,6 +41,7 @@ func main() {
 	c.CrawlForever()
 }
 
+// TODO: this should be in a common package
 func setUpLogger(httpLogging bool) {
 	var multiWriter io.Writer
 
