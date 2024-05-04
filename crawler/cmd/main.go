@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -15,6 +16,7 @@ import (
 )
 
 const (
+	parallelCrawlers = 5 // 10 doesn't give much improvement over 5
 	crawlGracePeriod = 10 * time.Second
 )
 
@@ -38,7 +40,16 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to set seeds")
 	}
 
-	c.CrawlForever()
+	var wg sync.WaitGroup
+	for n := 0; n < parallelCrawlers; n++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			c.CrawlForever()
+		}()
+	}
+	wg.Wait()
+	panic("All crawler Goroutines crashed somehow")
 }
 
 // TODO: this should be in a common package
