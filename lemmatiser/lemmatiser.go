@@ -22,7 +22,8 @@ func NewLemmatiser() (*Lemmatiser, error) {
 	}, nil
 }
 
-// Lemmatise returns a word in it's base form. E.g., "running" -> "run"
+// Lemmatise returns a word in it's base form. E.g., "running" -> "run".
+// Based on https://raw.githubusercontent.com/michmech/lemmatization-lists/master/lemmatization-en.txt
 func (l *Lemmatiser) Lemmatise(word string) string {
 	return l.lemmatiser.Lemma(word)
 }

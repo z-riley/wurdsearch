@@ -55,13 +55,15 @@ func (w *WordIndexer) GenerateWordIndex(collectionName string) error {
 		}
 
 		// Update word index for each word on the page
-		// This is horribly slow and should be improved at some point
-		wordMap := make(map[string]uint)
+		// This is horribly inefficient and should be improved at some point
+		wordCounts := make(map[string]uint)
 		words := sanitiseString(strings.ToLower(pageData.Content))
 		for _, word := range words {
-			wordMap[word] += 1
+			// Only store lemmas
+			lemmatisedWord := w.lemmatiser.Lemmatise(word)
+			wordCounts[lemmatisedWord] += 1
 		}
-		for word, count := range wordMap {
+		for word, count := range wordCounts {
 			// Upsert the word in the DB with new data
 			wordCount := uint(len(words))
 			err := w.db.UpdateWordReference(word, pageData.Url, count, wordCount)
