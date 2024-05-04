@@ -19,7 +19,7 @@ func NewWebgrapher(db *store.Storage) *Webgrapher {
 // GenerateWebgraph generates a webgraph from the crawled data in the database
 func (w *Webgrapher) GenerateWebgraph() error {
 
-	if err := w.db.InitIterator(store.CrawledDataCollection); err != nil {
+	if err := w.db.InitIterator(w.db.Config.CrawledDataCollection); err != nil {
 		return err
 	}
 
@@ -33,8 +33,7 @@ func (w *Webgrapher) GenerateWebgraph() error {
 			break
 		}
 
-		// TODO: Populate linksFrom field (any way to do this not N^2?)
-
+		// Populate linksTo field
 		if err := w.db.SaveNode(store.Node{
 			Url:       data.Url,
 			LinksTo:   data.Links,
@@ -42,6 +41,9 @@ func (w *Webgrapher) GenerateWebgraph() error {
 		}); err != nil {
 			return fmt.Errorf("Failed to save node: %v", err)
 		}
+
+		// Note: not possible to populate linksFrom field because it is N^2 database
+		// calls, where N is the number of crawled documents. Leaving as todo for now
 
 	}
 	return nil

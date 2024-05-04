@@ -11,6 +11,7 @@ func TestGenerateWebgraph(t *testing.T) {
 		DatabaseName:          store.DatabaseName,
 		CrawledDataCollection: store.CrawledDataTestCollection,
 		WebgraphCollection:    store.WebgraphTestCollection,
+		WordIndexCollection:   store.WordIndexTestCollection,
 	})
 	if err != nil {
 		t.Error(err)
