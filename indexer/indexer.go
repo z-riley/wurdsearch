@@ -23,11 +23,13 @@ func NewIndexer() (*Indexer, error) {
 		log.Fatal().Err(err)
 	}
 
-	webgraph := NewWebgrapher(db)
-	wordIndexer := NewWordIndexer(db)
+	wordIndexer, err := NewWordIndexer(db)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Indexer{
-		webgrapher:  webgraph,
+		webgrapher:  NewWebgrapher(db),
 		wordIndexer: wordIndexer,
 		db:          db,
 	}, nil

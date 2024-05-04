@@ -6,17 +6,25 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog/log"
+	"github.com/zac460/turdsearch/lemmatiser"
 	"github.com/zac460/turdsearch/store"
 )
 
 type WordIndexer struct {
-	db *store.Storage
+	lemmatiser *lemmatiser.Lemmatiser
+	db         *store.Storage
 }
 
-func NewWordIndexer(db *store.Storage) *WordIndexer {
-	return &WordIndexer{
-		db: db,
+func NewWordIndexer(db *store.Storage) (*WordIndexer, error) {
+	l, err := lemmatiser.NewLemmatiser()
+	if err != nil {
+		return nil, err
 	}
+
+	return &WordIndexer{
+		lemmatiser: l,
+		db:         db,
+	}, nil
 }
 
 // GenerateWordIndex generates a word index from crawled page data
