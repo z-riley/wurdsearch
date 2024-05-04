@@ -6,6 +6,8 @@ replace github.com/enriquebris/goconcurrentqueue v0.7.0 => github.com/zac460/goc
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.1
+	github.com/aaaton/golem/v4 v4.0.1
+	github.com/aaaton/golem/v4/dicts/en v1.0.1
 	github.com/enriquebris/goconcurrentqueue v0.7.0
 	github.com/jimsmart/grobotstxt v1.0.3
 	github.com/rs/zerolog v1.32.0
