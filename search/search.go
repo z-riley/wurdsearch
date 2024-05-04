@@ -4,22 +4,25 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/zac460/turdsearch/lemmatiser"
 	"github.com/zac460/turdsearch/store"
 )
 
 type Searcher struct {
-	db *store.Storage
+	lemmatiser *lemmatiser.Lemmatiser
+	db         *store.Storage
 }
 
 func NewSearcher(store *store.Storage) (*Searcher, error) {
-	return &Searcher{
-		db: store,
-	}, nil
-}
+	l, err := lemmatiser.NewLemmatiser()
+	if err != nil {
+		return nil, err
+	}
 
-type Result struct {
-	Url               string  `json:"url"`
-	ConfidencePercent float64 `json:"confidence"`
+	return &Searcher{
+		lemmatiser: l,
+		db:         store,
+	}, nil
 }
 
 // Search executes a search, returning a slice of relevant documents

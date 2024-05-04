@@ -68,7 +68,7 @@ func (w *WordIndexer) GenerateWordIndex(collectionName string) error {
 			wordCount := uint(len(words))
 			err := w.db.UpdateWordReference(word, pageData.Url, count, wordCount)
 			if err != nil {
-				return fmt.Errorf("Update word index for %s: %v", word, err)
+				return fmt.Errorf("Failed to update word index for %s: %v", word, err)
 			}
 		}
 	}

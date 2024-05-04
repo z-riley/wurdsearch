@@ -13,8 +13,14 @@ import (
 // as a percentage
 func (s *Searcher) TFIDF(query string) (PageScores, error) {
 
-	// 1. Calculate page vectors
-	words := strings.Split(query, " ")
+	// 1. Lemmatise words
+	var words []string
+	rawWords := strings.Split(query, " ")
+	for _, word := range rawWords {
+		words = append(words, s.lemmatiser.Lemmatise(word))
+	}
+
+	// 2. Calculate page vectors
 	urls, err := s.getEveryRelevantDoc(words)
 	if err != nil {
 		return PageScores{}, err
@@ -28,14 +34,14 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 		vectors = append(vectors, v)
 	}
 
-	// 2. Get query vector
+	// 3. Get query vector
 	queryVec, err := s.queryVector(words)
 	if err != nil {
 		return PageScores{}, err
 	}
 	log.Debug().Msgf("Seach vector: %v", queryVec)
 
-	// 3. Compare the query vector to each page vector
+	// 4. Compare the query vector to each page vector
 	scores := make(PageScores)
 	for _, pageVec := range vectors {
 		theta := theta(queryVec, pageVec)
