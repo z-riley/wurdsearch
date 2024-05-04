@@ -74,6 +74,7 @@ func (c *Crawler) crawlingSequence() error {
 	link, err := c.frontier.Dequeue()
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to dequeue the next link from frontier")
+		time.Sleep(1 * time.Second) // probably failed because queue was empty, so wait a second
 		return err
 	}
 	link, ok := link.(string)
