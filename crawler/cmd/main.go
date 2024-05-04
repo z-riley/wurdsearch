@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	parallelCrawlers = 5 // 10 doesn't give much improvement over 5
+	parallelCrawlers = 5 // 5 is good, 10 isn't much better
 	crawlGracePeriod = 10 * time.Second
 )
 

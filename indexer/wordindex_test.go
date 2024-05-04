@@ -9,7 +9,7 @@ import (
 func TestGenerateWordIndex(t *testing.T) {
 	db, err := store.NewStorageConn(store.StorageConfig{
 		DatabaseName:          store.DatabaseName,
-		CrawledDataCollection: store.CrawledDataTestCollection,
+		CrawledDataCollection: store.CrawledDataCollection,
 		WebgraphCollection:    store.WebgraphTestCollection,
 		WordIndexCollection:   store.WordIndexTestCollection,
 	})
