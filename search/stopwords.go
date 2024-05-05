@@ -9,7 +9,8 @@ func isStopWord(word string) bool {
 	return false
 }
 
-var stopWords = []string{"a",
+var stopWords = []string{
+	"a",
 	"about",
 	"an",
 	"and",
