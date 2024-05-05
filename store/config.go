@@ -1,5 +1,7 @@
 package store
 
+import "time"
+
 const (
 	DatabaseName = "turdsearch"
 
@@ -11,6 +13,8 @@ const (
 
 	WordIndexCollection     = "word_index"
 	WordIndexTestCollection = "word_index_test"
+
+	requestTimeout = 3 * time.Second
 )
 
 type StorageConfig struct {
