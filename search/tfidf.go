@@ -31,7 +31,6 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 	if err != nil {
 		return PageScores{}, err
 	}
-
 	// b. Calculate IDF for each word
 	IDFs := make(map[string]float64)
 	for _, word := range words {
@@ -41,17 +40,11 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 		}
 		IDFs[word] = IDF
 	}
-
-	/* FIXME: plan to make this bit faster:
-	- Be more selective when getting relevant docs
-	- Use parallelism to calculate vectors
-	*/
-
 	// c. Calculate TF-IDF vectors
 	start := time.Now() // temp
 	var vectors []vector
 	for _, url := range urls {
-		v, err := s.generateVector(url, words, IDFs) // <-- slow bit
+		v, err := s.generateVector(url, words, IDFs) // <-- slow bit FIXME: add concurrency
 		if err != nil {
 			return PageScores{}, err
 		}

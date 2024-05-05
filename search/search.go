@@ -48,11 +48,24 @@ func (s *Searcher) Search(query string) (PageScores, error) {
 	return finalScores, nil
 }
 
-// sanitiseQuery sanitise a search query before use in search algorithms
+// sanitiseQuery sanitises a search query before use in search algorithms
 func sanitiseQuery(query string) string {
 	query = strings.ToLower(query)
 	query = strings.TrimSpace(query)
-	return query
+
+	// Handle symbols
+	result := ""
+	for _, letter := range query {
+		switch letter {
+		case '&', '/', '\\', '-', '+', '=', '_':
+			result += " "
+		case '!', '?', '"', '^', '(', ')', '{', '}', '[', ']', '<', '>', ',', '.':
+			result += ""
+		default:
+			result += string(letter)
+		}
+	}
+	return result
 }
 
 // PageScores holds number scores for URLs
