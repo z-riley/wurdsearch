@@ -27,7 +27,7 @@ func NewSearcher(store *store.Storage) (*Searcher, error) {
 
 // Search executes a search, returning a slice of relevant documents
 func (s *Searcher) Search(query string) (PageScores, error) {
-	
+
 	query = sanitiseQuery(query)
 
 	// TF-IDF

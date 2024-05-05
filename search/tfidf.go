@@ -15,16 +15,19 @@ import (
 // as a percentage
 func (s *Searcher) TFIDF(query string) (PageScores, error) {
 
-	// 1. Lemmatise words
+	// 1. Lemmatise and remove stop words
 	var words []string
 	rawWords := strings.Split(query, " ")
 	for _, word := range rawWords {
-		words = append(words, s.lemmatiser.Lemmatise(word))
+		lword := s.lemmatiser.Lemmatise(word)
+		if !isStopWord(lword) {
+			words = append(words, lword)
+		}
 	}
 
 	// 2. Calculate page vectors
-	// a. Fetch all documents that contain any words in the search term
-	urls, err := s.getEveryRelevantDoc(words)
+	// a. Fetch all documents relevant to search query
+	urls, err := s.getEveryRelevantDoc(words, 3)
 	if err != nil {
 		return PageScores{}, err
 	}
@@ -38,6 +41,11 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 		}
 		IDFs[word] = IDF
 	}
+
+	/* FIXME: plan to make this bit faster:
+	- Be more selective when getting relevant docs
+	- Use parallelism to calculate vectors
+	*/
 
 	// c. Calculate TF-IDF vectors
 	start := time.Now() // temp
@@ -84,7 +92,7 @@ func (s *Searcher) generateVector(url string, queryWords []string, wordIDFs map[
 			return v, err
 		}
 		TF := TFs[url]
-		fmt.Printf("Calculating term frequencies for %s: %v\n", word, time.Since(start)) // temp
+		fmt.Printf("Calculating term frequencies for %s on %s: %v\n", word, url, time.Since(start)) // temp
 
 		IDF, ok := wordIDFs[word]
 		if !ok {
@@ -122,8 +130,9 @@ func (s *Searcher) queryVector(words []string) (vector, error) {
 	return result, nil
 }
 
-// getEveryRelevantDoc retrieves the URL of every document that contains any of the words in the search query
-func (s *Searcher) getEveryRelevantDoc(words []string) ([]string, error) {
+// getEveryRelevantDoc retrieves the URL of every document that contains n or more occurances
+// of any of the words in the search query
+func (s *Searcher) getEveryRelevantDoc(words []string, minOccurances uint) ([]string, error) {
 	var urls []string
 	for _, word := range words {
 		wordIndexes, err := s.db.GetWordIndex(word)
@@ -132,8 +141,10 @@ func (s *Searcher) getEveryRelevantDoc(words []string) ([]string, error) {
 		} else if err != nil {
 			return urls, err
 		}
-		for url := range wordIndexes.References {
-			urls = append(urls, url)
+		for url, ref := range wordIndexes.References {
+			if ref.Count >= minOccurances {
+				urls = append(urls, url)
+			}
 		}
 	}
 	return urls, nil

@@ -79,11 +79,11 @@ func TestGetEveryRelevantDoc(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	URLs, err := s.getEveryRelevantDoc([]string{"usually", "started"})
+	URLs, err := s.getEveryRelevantDoc([]string{"usually", "started"}, 3)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(URLs)
+	fmt.Println(URLs, "-", len(URLs), "docs")
 
 }
 func TestTermFrequencies(t *testing.T) {
