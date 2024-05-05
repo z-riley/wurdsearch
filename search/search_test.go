@@ -6,7 +6,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/zac460/turdsearch/store"
+	"github.com/zac460/turdsearch/common/store"
 )
 
 func TestSearch(t *testing.T) {

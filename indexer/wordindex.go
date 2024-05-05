@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog/log"
-	"github.com/zac460/turdsearch/lemmatiser"
-	"github.com/zac460/turdsearch/store"
+	"github.com/zac460/turdsearch/common/lemmatiser"
+	"github.com/zac460/turdsearch/common/store"
 )
 
 type WordIndexer struct {

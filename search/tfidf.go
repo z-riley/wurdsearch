@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"github.com/zac460/turdsearch/store"
+	"github.com/zac460/turdsearch/common/store"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

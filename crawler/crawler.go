@@ -11,9 +11,9 @@ import (
 
 	"github.com/jimsmart/grobotstxt"
 	"github.com/rs/zerolog/log"
+	"github.com/zac460/turdsearch/common/store"
 	"github.com/zac460/turdsearch/crawler/frontier"
 	"github.com/zac460/turdsearch/crawler/parser"
-	"github.com/zac460/turdsearch/store"
 )
 
 const (

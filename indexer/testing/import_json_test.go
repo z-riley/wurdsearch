@@ -3,7 +3,7 @@ package testing
 import (
 	"testing"
 
-	"github.com/zac460/turdsearch/store"
+	"github.com/zac460/turdsearch/common/store"
 )
 
 func TestImportJson(t *testing.T) {

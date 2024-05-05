@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/zac460/turdsearch/lemmatiser"
-	"github.com/zac460/turdsearch/store"
+	"github.com/zac460/turdsearch/common/lemmatiser"
+	"github.com/zac460/turdsearch/common/store"
 )
 
 type Searcher struct {

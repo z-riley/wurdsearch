@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/rs/zerolog/log"
-	"github.com/zac460/turdsearch/store"
+	"github.com/zac460/turdsearch/common/store"
 )
 
 type Indexer struct {

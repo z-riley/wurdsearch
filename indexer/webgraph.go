@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/zac460/turdsearch/store"
+	"github.com/zac460/turdsearch/common/store"
 )
 
 type Webgrapher struct {
