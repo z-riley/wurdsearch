@@ -16,6 +16,14 @@
             "program": "/home/zac/repo/turdsearch/indexer/cmd/main.go",
             "args": [],
             "env": {},
+        },
+        {
+            "name": "Search server",
+            "type": "go",
+            "request": "launch",
+            "program": "/home/zac/repo/turdsearch/search/cmd/main.go",
+            "args": [],
+            "env": {},
         }
     ]
 }
