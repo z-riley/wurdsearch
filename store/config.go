@@ -15,7 +15,7 @@ const (
 	WordIndexTestCollection = "word_index_test"
 
 	requestTimeout = 3 * time.Second
-	connectionPool = 600 // manually tuned for best results
+	connectionPool = 800 // manually tuned for best results
 )
 
 type StorageConfig struct {
