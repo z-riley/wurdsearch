@@ -3,7 +3,9 @@ package search
 import (
 	"errors"
 	"strings"
+	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/zac460/turdsearch/common/lemmatiser"
 	"github.com/zac460/turdsearch/common/store"
 )
@@ -12,6 +14,9 @@ type Searcher struct {
 	lemmatiser *lemmatiser.Lemmatiser
 	db         *store.Storage
 }
+
+// PageScores holds number scores for URLs
+type PageScores map[string]float64
 
 func NewSearcher(store *store.Storage) (*Searcher, error) {
 	l, err := lemmatiser.NewLemmatiser()
@@ -27,7 +32,7 @@ func NewSearcher(store *store.Storage) (*Searcher, error) {
 
 // Search executes a search, returning a slice of relevant documents
 func (s *Searcher) Search(query string) (PageScores, error) {
-
+	start := time.Now()
 	query = sanitiseQuery(query)
 
 	// TF-IDF
@@ -45,6 +50,7 @@ func (s *Searcher) Search(query string) (PageScores, error) {
 		return PageScores{}, err
 	}
 
+	log.Info().Msgf("Found %d results for '%s', in %dms", len(finalScores), query, time.Since(start).Milliseconds())
 	return finalScores, nil
 }
 
@@ -67,9 +73,6 @@ func sanitiseQuery(query string) string {
 	}
 	return result
 }
-
-// PageScores holds number scores for URLs
-type PageScores map[string]float64
 
 // mergeScores combines serach results according to their given weightings
 func mergeScores(scores []PageScores, weights []float64) (PageScores, error) {

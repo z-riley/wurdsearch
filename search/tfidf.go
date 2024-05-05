@@ -6,7 +6,6 @@ import (
 	"math"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/zac460/turdsearch/common/store"
@@ -48,12 +47,10 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 		IDFs[word] = IDF
 	}
 	// c. Calculate TF-IDF vectors
-	start := time.Now() // temp
 	vectors, err := s.generateAllVectors(urls, words, IDFs)
 	if err != nil {
 		return PageScores{}, fmt.Errorf("Failed to generate vectors: %v", err)
 	}
-	fmt.Println("Calculating all page vectors: ", time.Since(start)) // temp
 
 	// 3. Get query vector
 	queryVec, err := s.queryVector(words)
@@ -116,13 +113,11 @@ func (s *Searcher) generateVector(url string, queryWords []string, wordIDFs map[
 
 	for _, word := range queryWords {
 
-		start := time.Now() // temp
 		TFs, err := s.termFrequencies(word)
 		if err != nil {
 			return v, err
 		}
 		TF := TFs[url]
-		fmt.Printf("Calculating term frequencies for %s on %s: %v\n", word, url, time.Since(start)) // temp
 
 		IDF, ok := wordIDFs[word]
 		if !ok {
