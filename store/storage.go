@@ -20,7 +20,10 @@ type Storage struct {
 func NewStorageConn(config StorageConfig) (*Storage, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions.SetMaxPoolSize(connectionPool)
+	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -114,4 +117,9 @@ func (db *Storage) Len(collectionName string) (int64, error) {
 	}
 
 	return length, nil
+}
+
+// MaxConnections returns the size of the connection pool
+func MaxConnections() int {
+	return connectionPool
 }

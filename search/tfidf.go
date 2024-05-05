@@ -9,8 +9,14 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
+	"github.com/zac460/turdsearch/store"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
+type VectorResult struct {
+	Vec vector
+	Err error
+}
 
 // TFIDF performs a TF-IDF search and returns relevant URLs and match confidence
 // as a percentage
@@ -42,35 +48,11 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 		IDFs[word] = IDF
 	}
 	// c. Calculate TF-IDF vectors
-
 	start := time.Now() // temp
-
-	var wg sync.WaitGroup
-	type VectorResult struct {
-		Vec vector
-		Err error
+	vectors, err := s.generateAllVectors(urls, words, IDFs)
+	if err != nil {
+		return PageScores{}, fmt.Errorf("Failed to generate vectors: %v", err)
 	}
-	vectorChan := make(chan VectorResult, len(urls))
-	for _, url := range urls {
-		wg.Add(1)
-		go func(url string) {
-			defer wg.Done()
-			v, err := s.generateVector(url, words, IDFs)
-			vectorChan <- VectorResult{Vec: v, Err: err}
-		}(url)
-	}
-	go func() {
-		wg.Wait()
-		close(vectorChan)
-	}()
-	var vectors []vector
-	for result := range vectorChan {
-		if result.Err != nil {
-			return PageScores{}, result.Err
-		}
-		vectors = append(vectors, result.Vec)
-	}
-
 	fmt.Println("Calculating all page vectors: ", time.Since(start)) // temp
 
 	// 3. Get query vector
@@ -89,6 +71,40 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 	}
 
 	return scores, nil
+}
+
+// generateAllVectors generates TF-IDF vectors for the words in the search query for each provided URL
+func (s *Searcher) generateAllVectors(urls []string, queryWords []string, IDFs map[string]float64) ([]vector, error) {
+	numWorkers := int(math.Floor(0.9 * float64(store.MaxConnections())))
+	urlsChan := make(chan string, len(urls))
+	resultsChan := make(chan VectorResult, len(urls))
+
+	var wg sync.WaitGroup
+	wg.Add(numWorkers)
+	for n := 0; n < numWorkers; n++ {
+		go func() {
+			defer wg.Done()
+			for url := range urlsChan {
+				v, err := s.generateVector(url, queryWords, IDFs)
+				resultsChan <- VectorResult{Vec: v, Err: err}
+			}
+		}()
+	}
+	for _, url := range urls {
+		urlsChan <- url // send work to the worker pool
+	}
+	close(urlsChan) // indicate no more to be sent
+	wg.Wait()
+	close(resultsChan)
+
+	var vectors []vector
+	for result := range resultsChan {
+		if result.Err != nil {
+			return nil, result.Err
+		}
+		vectors = append(vectors, result.Vec)
+	}
+	return vectors, nil
 }
 
 // generateVector calcuates a vector for a given query on a page
