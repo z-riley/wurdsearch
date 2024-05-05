@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestTFIDF(t *testing.T) {
@@ -20,26 +21,41 @@ func TestTFIDF(t *testing.T) {
 	fmt.Println(results)
 }
 func TestGenerateVector(t *testing.T) {
+
+	start := time.Now()
+
 	s, err := NewSearcher(getTestDB(t))
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	searchTerm := []string{"varroa", "advice"}
+
+	// First calculate IDF for each word
+	IDFs := make(map[string]float64)
+	for _, word := range searchTerm {
+		IDF, err := s.inverseDocumentFrequency(word)
+		if err != nil {
+			t.Fatal(err)
+		}
+		IDFs[word] = IDF
+	}
+
 	url := "https://www.varroaresistant.uk/advice"
-	searchTerm := []string{"varroa advice"}
-	result, err := s.generateVector(url, searchTerm)
+	result, err := s.generateVector(url, searchTerm, IDFs)
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(result)
 
 	url = "https://en.wikipedia.org/wiki/Wikipedia:File_Upload_Wizard"
-	searchTerm = []string{"varroa advice"}
-	result, err = s.generateVector(url, searchTerm)
+	result, err = s.generateVector(url, searchTerm, IDFs)
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(result)
+
+	fmt.Println("Time:", time.Since(start))
 }
 
 func TestSearchTermVector(t *testing.T) {

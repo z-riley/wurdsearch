@@ -2,8 +2,10 @@ package search
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -21,18 +23,33 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 	}
 
 	// 2. Calculate page vectors
+	// a. Fetch all documents that contain any words in the search term
 	urls, err := s.getEveryRelevantDoc(words)
 	if err != nil {
 		return PageScores{}, err
 	}
+
+	// b. Calculate IDF for each word
+	IDFs := make(map[string]float64)
+	for _, word := range words {
+		IDF, err := s.inverseDocumentFrequency(word)
+		if err != nil {
+			return PageScores{}, err
+		}
+		IDFs[word] = IDF
+	}
+
+	// c. Calculate TF-IDF vectors
+	start := time.Now() // temp
 	var vectors []vector
 	for _, url := range urls {
-		v, err := s.generateVector(url, words)
+		v, err := s.generateVector(url, words, IDFs) // <-- slow bit
 		if err != nil {
 			return PageScores{}, err
 		}
 		vectors = append(vectors, v)
 	}
+	fmt.Println("Calculating all page vectors: ", time.Since(start)) // temp
 
 	// 3. Get query vector
 	queryVec, err := s.queryVector(words)
@@ -49,29 +66,29 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 		scores[pageVec.label] = percent
 	}
 
-	// TODO: fix NaN results in multi-word search terms
-
 	return scores, nil
 }
 
 // generateVector calcuates a vector for a given query on a page
-func (s *Searcher) generateVector(url string, queryWords []string) (vector, error) {
+func (s *Searcher) generateVector(url string, queryWords []string, wordIDFs map[string]float64) (vector, error) {
 	v := vector{
 		label: url,
 		val:   make(map[string]float64),
 	}
 
 	for _, word := range queryWords {
+
+		start := time.Now() // temp
 		TFs, err := s.termFrequencies(word)
 		if err != nil {
 			return v, err
 		}
 		TF := TFs[url]
+		fmt.Printf("Calculating term frequencies for %s: %v\n", word, time.Since(start)) // temp
 
-		// Calculate IDF so rarer words are more important
-		IDF, err := s.inverseDocumentFrequency(word)
-		if err != nil {
-			return v, err
+		IDF, ok := wordIDFs[word]
+		if !ok {
+			return v, fmt.Errorf("Supplied IDFs must include the word \"%s\"", word)
 		}
 		v.val[word] = TF * IDF
 	}

@@ -15,7 +15,7 @@ func TestSearch(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	query := "bees varroa"
+	query := "bees varroa queen of france"
 	results, err := s.Search(query)
 	if err != nil {
 		t.Fatal(err)
