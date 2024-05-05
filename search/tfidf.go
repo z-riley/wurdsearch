@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -41,15 +42,35 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 		IDFs[word] = IDF
 	}
 	// c. Calculate TF-IDF vectors
+
 	start := time.Now() // temp
-	var vectors []vector
-	for _, url := range urls {
-		v, err := s.generateVector(url, words, IDFs) // <-- slow bit FIXME: add concurrency
-		if err != nil {
-			return PageScores{}, err
-		}
-		vectors = append(vectors, v)
+
+	var wg sync.WaitGroup
+	type VectorResult struct {
+		Vec vector
+		Err error
 	}
+	vectorChan := make(chan VectorResult, len(urls))
+	for _, url := range urls {
+		wg.Add(1)
+		go func(url string) {
+			defer wg.Done()
+			v, err := s.generateVector(url, words, IDFs)
+			vectorChan <- VectorResult{Vec: v, Err: err}
+		}(url)
+	}
+	go func() {
+		wg.Wait()
+		close(vectorChan)
+	}()
+	var vectors []vector
+	for result := range vectorChan {
+		if result.Err != nil {
+			return PageScores{}, result.Err
+		}
+		vectors = append(vectors, result.Vec)
+	}
+
 	fmt.Println("Calculating all page vectors: ", time.Since(start)) // temp
 
 	// 3. Get query vector
