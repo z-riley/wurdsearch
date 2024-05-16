@@ -10,7 +10,13 @@ import (
 )
 
 const (
-	parallelCrawlers = 5 // 5 is good, 10 isn't much better
+	/* Crawling test 60s:
+	5 crawlers: 500
+	10 crawlers: 734 (CPU 85%)
+	20 crawlers: 869 (CPU 100%)
+	*/
+	parallelCrawlers = 10
+
 	crawlGracePeriod = 10 * time.Second
 )
 
