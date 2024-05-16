@@ -1,4 +1,4 @@
-package main
+package indexer
 
 import (
 	"github.com/rs/zerolog/log"
