@@ -55,6 +55,10 @@ func extractLinks(body io.Reader, baseUrl *url.URL) []string {
 						}
 						// Turn relative links into absolute links
 						absoluteLink := baseUrl.ResolveReference(link)
+						// Only save https links
+						if absoluteLink.Scheme != "https" {
+							continue
+						}
 						absoluteLink.Fragment = "" // remove anchor from URL
 						links = append(links, absoluteLink.String())
 					}
