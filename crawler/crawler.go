@@ -64,7 +64,7 @@ func (c *Crawler) SetSeeds(urls []string) error {
 func (c *Crawler) CrawlForever() {
 	for {
 		if err := c.crawlingSequence(); err != nil {
-			log.Warn().Err(err).Msg("Crawl failed")
+			log.Fatal().Err(err).Msg("Crawl failed")
 		}
 	}
 }
