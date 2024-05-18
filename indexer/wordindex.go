@@ -7,6 +7,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"github.com/zac460/turdsearch/common/lemmatiser"
+	"github.com/zac460/turdsearch/common/stopwords"
 	"github.com/zac460/turdsearch/common/store"
 )
 
@@ -59,6 +60,10 @@ func (w *WordIndexer) GenerateWordIndex(collectionName string) error {
 		wordCounts := make(map[string]uint)
 		words := sanitiseString(strings.ToLower(pageData.Content))
 		for _, word := range words {
+			// Ignore stop words since they'll never be searched for anyway
+			if stopwords.IsStopWord(word) {
+				continue
+			}
 			// Only store lemmas
 			lemmatisedWord := w.lemmatiser.Lemmatise(word)
 			wordCounts[lemmatisedWord] += 1
