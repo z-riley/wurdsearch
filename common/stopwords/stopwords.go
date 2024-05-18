@@ -1,6 +1,6 @@
-package search
+package stopwords
 
-func isStopWord(word string) bool {
+func IsStopWord(word string) bool {
 	for _, stopWord := range stopWords {
 		if word == stopWord {
 			return true

@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/rs/zerolog/log"
+	"github.com/zac460/turdsearch/common/stopwords"
 	"github.com/zac460/turdsearch/common/store"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -26,7 +27,7 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 	rawWords := strings.Split(query, " ")
 	for _, word := range rawWords {
 		lword := s.lemmatiser.Lemmatise(word)
-		if !isStopWord(lword) {
+		if !stopwords.IsStopWord(lword) {
 			words = append(words, lword)
 		}
 	}
