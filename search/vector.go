@@ -19,7 +19,10 @@ func (v *vector) mod() float64 {
 
 // theta returns the angle (in radians) between two vectors
 func theta(a vector, b vector) float64 {
-	return math.Acos(dotProduct(a, b) / (a.mod() * b.mod()))
+	cosTheta := dotProduct(a, b) / (a.mod() * b.mod())
+	cosTheta = clamp(cosTheta, 0, 1) // to stop floating point errors
+	x := math.Acos(cosTheta)
+	return x
 }
 
 // dotProduct calculates the dot product of two vectors. It is assumed that vector.vals contain the same keys
@@ -29,4 +32,14 @@ func dotProduct(a vector, b vector) float64 {
 		sum += a.val[word] * b.val[word]
 	}
 	return sum
+}
+
+// clamp constaints a value between the minimum and maximum
+func clamp(value, min, max float64) float64 {
+	if value < min {
+		return min
+	} else if value > max {
+		return max
+	}
+	return value
 }
