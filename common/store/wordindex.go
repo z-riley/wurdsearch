@@ -19,6 +19,19 @@ type WordEntry struct {
 	References map[string]Reference `bson:"references"`
 }
 
+// Encode changes "."s to "`"s because "." confuses Mongo
+func (w *WordEntry) Encode() WordEntry {
+	encodedRefs := make(map[string]Reference)
+	for url, reference := range w.References {
+		encodedURL := strings.ReplaceAll(url, ".", "`")
+		encodedRefs[encodedURL] = reference
+	}
+	return WordEntry{
+		Word:       w.Word,
+		References: encodedRefs,
+	}
+}
+
 type Reference struct {
 	Count  uint `bson:"count"`
 	Length uint `bson:"length"`
@@ -79,7 +92,7 @@ func (db *Storage) UpdateWordReference(word, url string, count, totalWords uint)
 		return err
 	}
 	wordEntry.References[url] = Reference{count, totalWords}
-	if err := db.SaveWord(wordEntry); err != nil {
+	if err := db.SaveWord(wordEntry.Encode()); err != nil {
 		return err
 	}
 
