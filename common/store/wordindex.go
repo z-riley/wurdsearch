@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -29,6 +30,19 @@ func (w *WordEntry) Encode() WordEntry {
 	return WordEntry{
 		Word:       w.Word,
 		References: encodedRefs,
+	}
+}
+
+// Decode changes "`"s to "."s because "." confuses Mongo
+func (w *WordEntry) Decode() WordEntry {
+	decodedRefs := make(map[string]Reference)
+	for url, reference := range w.References {
+		encodedURL := strings.ReplaceAll(url, "`", ".")
+		decodedRefs[encodedURL] = reference
+	}
+	return WordEntry{
+		Word:       w.Word,
+		References: decodedRefs,
 	}
 }
 
