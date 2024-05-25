@@ -19,14 +19,19 @@ func TestGetWordIndex(t *testing.T) {
 	fmt.Printf("%+v\n", word)
 }
 
-func TestUpdateWordReference(t *testing.T) {
+func TestUpdateWordReferences(t *testing.T) {
 	db, err := NewStorageConn(getTestConfig())
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Destroy()
 
-	if err := db.UpdateWordReference("testword", "example.com", 1, 1000); err != nil {
+	wordCounts := map[string]uint{
+		"please":  2,
+		"disable": 4,
+		"nuts":    8,
+	}
+	if err := db.UpdateWordReferences("example.com", wordCounts, 1000); err != nil {
 		t.Fatal(err)
 	}
 }

@@ -28,7 +28,6 @@ func NewWordIndexer(db *store.Storage) (*WordIndexer, error) {
 	}, nil
 }
 
-// GenerateWordIndex generates a word index from crawled page data
 func (w *WordIndexer) GenerateWordIndex(collectionName string) error {
 
 	// Iterate through all crawled URLS
@@ -45,7 +44,7 @@ func (w *WordIndexer) GenerateWordIndex(collectionName string) error {
 
 	for {
 		count++
-		log.Debug().Msgf("Generating word index. Progress: %d/%d", count, length)
+		log.Info().Msgf("Generating word index. Progress: %d/%d", count, length)
 
 		pageData, more, err := w.db.NextPageData()
 		if err != nil {
@@ -56,7 +55,6 @@ func (w *WordIndexer) GenerateWordIndex(collectionName string) error {
 		}
 
 		// Update word index for each word on the page
-		// This is horribly inefficient and should be improved at some point
 		wordCounts := make(map[string]uint)
 		words := sanitiseString(strings.ToLower(pageData.Content))
 		for _, word := range words {
@@ -68,12 +66,10 @@ func (w *WordIndexer) GenerateWordIndex(collectionName string) error {
 			lemmatisedWord := w.lemmatiser.Lemmatise(word)
 			wordCounts[lemmatisedWord] += 1
 		}
-		for word, count := range wordCounts {
-			// Upsert the word in the DB with new data
-			wordCount := uint(len(words))
-			err := w.db.UpdateWordReference(word, pageData.Url, count, wordCount)
+		if len(wordCounts) > 0 {
+			err = w.db.UpdateWordReferences(pageData.Url, wordCounts, uint(len(words)))
 			if err != nil {
-				return fmt.Errorf("Failed to update word index for %s: %v", word, err)
+				return fmt.Errorf("Failed to update word references for %s: %v", pageData.Url, err)
 			}
 		}
 	}

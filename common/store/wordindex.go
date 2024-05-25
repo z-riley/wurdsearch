@@ -2,10 +2,10 @@ package store
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -63,7 +63,7 @@ func (db *Storage) GetWordIndex(word string) (WordEntry, error) {
 	if err != nil {
 		return WordEntry{}, err
 	}
-	return retrievedWordEntry, nil
+	return retrievedWordEntry.Decode(), nil
 }
 
 // SaveWord inserts or overwrites a word index doc
@@ -90,25 +90,35 @@ func (db *Storage) SaveWord(word WordEntry) error {
 	return nil
 }
 
-// UpdateWordReference inserts or overwrites a word index document. Only one "url: count" reference may be added at a time
-func (db *Storage) UpdateWordReference(word, url string, count, totalWords uint) error {
-	// Manually read and overwrite document because Mongo can't handle "." characters in keys
-	wordEntry, err := db.GetWordIndex(word)
-	if errors.Is(err, mongo.ErrNoDocuments) {
-		// If no doc for that word exists, make one
-		wordEntry = WordEntry{
-			Word: word,
-			References: map[string]Reference{
-				url: {count, totalWords},
-			},
-		}
-	} else if err != nil {
-		return err
+// UpdateWordReferences inserts or overwrites a word index document for a given URL
+func (db *Storage) UpdateWordReferences(URL string, wordCounts map[string]uint, totalWords uint) error {
+	// Prepare models for bulk write
+	var models []mongo.WriteModel
+	for word, count := range wordCounts {
+		model := mongo.NewUpdateOneModel().
+			SetFilter(bson.D{{Key: "word", Value: word}}).
+			SetUpdate(bson.D{{
+				Key: "$set",
+				Value: bson.D{{
+					Key:   fmt.Sprintf("references.%s", strings.ReplaceAll(URL, ".", "`")),
+					Value: Reference{count, totalWords},
+				}},
+			}}).
+			SetUpsert(true)
+		models = append(models, model)
 	}
-	wordEntry.References[url] = Reference{count, totalWords}
-	if err := db.SaveWord(wordEntry.Encode()); err != nil {
-		return err
+
+	// Update documents
+	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
+	defer cancel()
+	collection := db.client.Database(db.Config.DatabaseName).Collection(db.Config.WordIndexCollection)
+	opts := options.BulkWrite().SetOrdered(true)
+	results, err := collection.BulkWrite(ctx, models, opts)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to bulk write")
 	}
+
+	log.Debug().Msgf("Matched %d documents, modified %d documents, upserted %d documents", results.MatchedCount, results.ModifiedCount, results.UpsertedCount)
 
 	return nil
 }

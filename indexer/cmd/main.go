@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/rs/zerolog/log"
 	"github.com/zac460/turdsearch/common/store"
 	"github.com/zac460/turdsearch/indexer"
@@ -23,7 +25,11 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to make new word indexer")
 	}
 
+	start := time.Now()
+
 	if err := w.GenerateWordIndex(db.Config.CrawledDataCollection); err != nil {
 		log.Fatal().Err(err).Msg("Failed to generate word index")
 	}
+
+	log.Info().Msgf("Generated word index in %v", time.Since(start))
 }
