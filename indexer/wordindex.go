@@ -43,9 +43,6 @@ func (w *WordIndexer) GenerateWordIndex(collectionName string) error {
 	count := 0
 
 	for {
-		count++
-		log.Info().Msgf("Generating word index. Progress: %d/%d", count, length)
-
 		pageData, more, err := w.db.NextPageData()
 		if err != nil {
 			return err
@@ -53,6 +50,9 @@ func (w *WordIndexer) GenerateWordIndex(collectionName string) error {
 		if !more {
 			break
 		}
+
+		count++
+		log.Info().Msgf("Generating word index. Progress: %d/%d", count, length)
 
 		// Update word index for each word on the page
 		wordCounts := make(map[string]uint)
