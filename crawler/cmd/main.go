@@ -1,6 +1,7 @@
 package main
 
 import (
+	"slices"
 	"sync"
 	"time"
 
@@ -16,7 +17,7 @@ const (
 	20 crawlers: 869 (CPU 100%)
 	*/
 	parallelCrawlers = 10
-
+	crawlDepth       = 3
 	crawlGracePeriod = 10 * time.Second
 )
 
@@ -41,13 +42,14 @@ func main() {
 	}
 
 	var wg sync.WaitGroup
-	for n := 0; n < parallelCrawlers; n++ {
+	crawlers := slices.Min([]int{parallelCrawlers, len(seeds)})
+	for n := 0; n < crawlers; n++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			c.CrawlForever()
+			c.CrawlToTheDepth(crawlDepth)
 		}()
 	}
 	wg.Wait()
-	panic("All crawler Goroutines crashed somehow")
+	log.Info().Msg("Crawl ended")
 }

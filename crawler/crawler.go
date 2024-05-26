@@ -20,9 +20,12 @@ const (
 	crawlerName = "TurdSeeker" // name of user agent in HTTP headers
 )
 
+var errDepthReached = errors.New("crawl depth reached")
+
 type Crawler struct {
 	frontier    *frontier.Frontier // queue of links to visit next
 	db          *store.Storage     // database abstraction
+	maxDepth    int                // maximum depth to recursively crawl
 	gracePeriod time.Duration      // grace period before a webpage can get crawled again
 }
 
@@ -41,6 +44,7 @@ func NewCrawler(gracePeriod time.Duration) (*Crawler, error) {
 	c := &Crawler{
 		frontier:    frontier.NewFrontier(),
 		db:          db,
+		maxDepth:    0,
 		gracePeriod: gracePeriod,
 	}
 
@@ -54,21 +58,29 @@ func (c *Crawler) SetSeeds(urls []string) error {
 	}
 
 	for _, url := range urls {
-		if err := c.frontier.Push(url); err != nil {
+		if err := c.frontier.Push(frontier.Link{URL: url, Depth: 1}); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (c *Crawler) CrawlForever() {
+// CrawlToTheDepth makes a crawler crawl until the desired depth is reached, at
+// which point it will return
+func (c *Crawler) CrawlToTheDepth(depth int) {
+	c.maxDepth = depth
 	for {
-		if err := c.crawlingSequence(); err != nil {
+		err := c.crawlingSequence()
+		if errors.Is(err, errDepthReached) {
+			log.Warn().Err(err).Msg("Crawl depth reached")
+			return
+		} else if err != nil {
 			log.Warn().Err(err).Msg("Crawl failed")
 		}
 	}
 }
 
+// crawlingSequence crawls a page from the frontier
 func (c *Crawler) crawlingSequence() error {
 	// 1. Get next link from frontier
 	link, err := c.frontier.Dequeue()
@@ -77,14 +89,10 @@ func (c *Crawler) crawlingSequence() error {
 		time.Sleep(1 * time.Second) // probably failed because queue was empty, so wait a second
 		return err
 	}
-	link, ok := link.(string)
-	if !ok {
-		return fmt.Errorf("%v is not castable to string", link)
-	}
 
 	// 2. Crawl page
-	log.Info().Msgf("Crawling page: %s", link.(string))
-	url, err := url.Parse(link.(string))
+	log.Info().Int("Depth", link.Depth).Msgf("Crawling page: %s", link.URL)
+	url, err := url.Parse(link.URL)
 	if err != nil {
 		return err
 	}
@@ -92,18 +100,29 @@ func (c *Crawler) crawlingSequence() error {
 	if err != nil {
 		return err
 	}
+	depth := link.Depth + 1
 	log.Debug().Str("page", url.String()).Msgf("Found %d links", len(data.Links))
 
-	// 3. Put new links into frontier if the pages haven't been scraped recently
-	for _, link := range data.Links {
+	// 3. Save page data to DB
+	err = c.db.SavePageData(data)
+	if err != nil {
+		return err
+	}
 
+	// 4. Check if crawl depth reached
+	if link.Depth >= c.maxDepth {
+		return errDepthReached
+	}
+
+	// 5. Push new links into frontier
+	for _, newURL := range data.Links {
 		// Check if link was crawled recently
-		isCrawledRecently, err := c.db.PageIsRecentlyCrawled(link, c.gracePeriod)
+		isCrawledRecently, err := c.db.PageIsRecentlyCrawled(newURL, c.gracePeriod)
 		if err != nil {
 			return err
 		}
 		if !isCrawledRecently {
-			if err := c.frontier.Push(link); err != nil {
+			if err := c.frontier.Push(frontier.Link{URL: newURL, Depth: depth}); err != nil {
 				log.Error().Err(err)
 			}
 		} else {
@@ -112,13 +131,7 @@ func (c *Crawler) crawlingSequence() error {
 	}
 	log.Info().Msgf("%d links added to frontier. New length: %d", len(data.Links), c.frontier.Len())
 
-	// 4. Save page data to DB
-	err = c.db.SavePageData(data)
-	if err != nil {
-		return err
-	}
-
-	// 5. Log frontier diagnostics
+	// 6. Log frontier diagnostics
 	m, err := c.frontier.TopNWebsites(10)
 	if err != nil {
 		return err

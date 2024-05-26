@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"net/url"
 	"testing"
+	"time"
 )
 
 func TestCrawlPage(t *testing.T) {
-	c, err := NewCrawler(0)
+	gracePeriod := 0 * time.Second
+	c, err := NewCrawler(gracePeriod)
 	if err != nil {
 		t.Error(err)
 	}

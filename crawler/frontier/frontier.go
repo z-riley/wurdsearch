@@ -8,6 +8,11 @@ import (
 	"github.com/enriquebris/goconcurrentqueue"
 )
 
+type Link struct {
+	URL   string
+	Depth int
+}
+
 type Frontier struct {
 	queue *goconcurrentqueue.FIFO
 }
@@ -19,7 +24,7 @@ func NewFrontier() *Frontier {
 }
 
 // Push puts an item at the back of the frontier queue. Returns error if the item already exists
-func (f *Frontier) Push(item any) error {
+func (f *Frontier) Push(item Link) error {
 	if f.Contains(item) {
 		return fmt.Errorf("Frontier already contains: %v", item)
 	} else {
@@ -32,21 +37,24 @@ func (f *Frontier) Push(item any) error {
 }
 
 // Dequeue removes an element from the front of the frontier. Returns error if queue is locked or empty
-func (f *Frontier) Dequeue() (any, error) {
-	return f.queue.Dequeue()
+func (f *Frontier) Dequeue() (Link, error) {
+	link, err := f.queue.Dequeue()
+	if err != nil {
+		return Link{}, err
+	}
+	return link.(Link), err
 }
 
-// GetAll returns every item in the frontier as strings
-func (f *Frontier) GetAll() ([]string, error) {
+// GetAll returns the URL of every item in the frontier
+func (f *Frontier) GetAll() []string {
 	// Make copy first for thread safety
 	copy := append([]any{}, f.queue.Slice...)
 
-	s, err := toStringSlice(copy)
-	if err != nil {
-		return []string{}, nil
+	var URLs []string
+	for _, item := range copy {
+		URLs = append(URLs, item.(Link).URL)
 	}
-
-	return s, nil
+	return URLs
 }
 
 // GetLen returns the number elements in the frontier
@@ -64,11 +72,11 @@ func (f *Frontier) TopNWebsites(n int) ([]Row, error) {
 	// Map to count the occurrence of each website
 	counts := make(map[string]int)
 	for _, item := range f.queue.Slice {
-		link, ok := item.(string)
+		link, ok := item.(Link)
 		if !ok {
-			return []Row{}, fmt.Errorf("found non-string item in frontier: %v", item)
+			return []Row{}, fmt.Errorf("found non-Link item in frontier: %v", item)
 		}
-		parsedUrl, err := url.Parse(link)
+		parsedUrl, err := url.Parse(link.URL)
 		if err != nil {
 			return []Row{}, err
 		}
@@ -92,7 +100,7 @@ func (f *Frontier) TopNWebsites(n int) ([]Row, error) {
 }
 
 // Contains checks if an item exists in the frontier queue
-func (f *Frontier) Contains(item any) bool {
+func (f *Frontier) Contains(item Link) bool {
 	for _, a := range f.queue.Slice {
 		if a == item {
 			return true
@@ -101,15 +109,15 @@ func (f *Frontier) Contains(item any) bool {
 	return false
 }
 
-// toStringSlice returns a copy of an any slice as a string slice
-func toStringSlice(a []any) ([]string, error) {
-	var s []string
-	for _, v := range a {
-		str, ok := v.(string)
-		if !ok {
-			return nil, fmt.Errorf("Non-string element found: %v", v)
-		}
-		s = append(s, str)
-	}
-	return s, nil
-}
+// // toStringSlice returns a copy of an any slice as a string slice
+// func toStringSlice(a []any) ([]string, error) {
+// 	var s []string
+// 	for _, v := range a {
+// 		str, ok := v.(string)
+// 		if !ok {
+// 			return nil, fmt.Errorf("Non-string element found: %v", v)
+// 		}
+// 		s = append(s, str)
+// 	}
+// 	return s, nil
+// }
