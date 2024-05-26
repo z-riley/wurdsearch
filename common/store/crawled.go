@@ -14,6 +14,7 @@ import (
 
 type PageData struct {
 	Url          string    `bson:"url"`
+	Title        string    `bson:"title"`
 	LastAccessed time.Time `bson:"lastAccessed"`
 	Links        []string  `bson:"links"`
 	Content      string    `bson:"content"`

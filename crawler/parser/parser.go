@@ -15,19 +15,56 @@ import (
 	"golang.org/x/net/html"
 )
 
-func ParsePage(body io.Reader, url *url.URL, timeAccessed time.Time) (store.PageData, error) {
-	var buf bytes.Buffer
-	tee := io.TeeReader(body, &buf)
+// func ParsePage(body io.Reader, url *url.URL, timeAccessed time.Time) (store.PageData, error) {
+// 	var buf bytes.Buffer
+// 	tee := io.TeeReader(body, &buf)
 
-	content, err := extractText(tee)
+// 	var buf2 bytes.Buffer
+// 	tee2 := io.TeeReader(tee, &buf2)
+
+// 	content, err := extractText(tee)
+// 	if err != nil {
+// 		return store.PageData{}, nil
+// 	}
+
+// 	links := extractLinks(&buf, url)
+
+// 	buff := new(strings.Builder)
+// 	_, err = io.Copy(buff, tee2)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	fmt.Print(buff.String())
+
+// 	return store.PageData{
+// 		Url:          url.String(),
+// 		LastAccessed: timeAccessed,
+// 		Links:        links,
+// 		Content:      content,
+// 	}, nil
+// }
+
+func ParsePage(body io.Reader, url *url.URL, timeAccessed time.Time) (store.PageData, error) {
+
+	// Use the buffer content to create new readers
+	bodyContent, err := io.ReadAll(body)
 	if err != nil {
-		return store.PageData{}, nil
+		return store.PageData{}, err
+	}
+	bodyReader1 := bytes.NewReader(bodyContent)
+	bodyReader2 := bytes.NewReader(bodyContent)
+	bodyReader3 := bytes.NewReader(bodyContent)
+
+	content, err := extractText(bodyReader1)
+	if err != nil {
+		return store.PageData{}, err
 	}
 
-	links := extractLinks(&buf, url)
+	links := extractLinks(bodyReader2, url)
 
 	return store.PageData{
 		Url:          url.String(),
+		Title:        extractTitle(bodyReader3),
 		LastAccessed: timeAccessed,
 		Links:        links,
 		Content:      content,
@@ -87,6 +124,19 @@ func extractText(body io.Reader) (string, error) {
 		}
 	})
 	return textContent.String(), nil
+}
+
+// extractTitle extracts the title from the header of an HTML page using goquery
+func extractTitle(body io.Reader) string {
+	doc, err := goquery.NewDocumentFromReader(body)
+	if err != nil {
+		return "no title found"
+	}
+	title := doc.Find("title").Text()
+	if title == "" {
+		return "title not found"
+	}
+	return strings.TrimSpace(title)
 }
 
 // UNUSED:

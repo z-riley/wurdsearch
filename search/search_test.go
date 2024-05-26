@@ -19,7 +19,7 @@ func TestSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(results)
+	fmt.Printf("%+v", results)
 }
 
 func TestMergeScores(t *testing.T) {
@@ -80,9 +80,9 @@ func TestMergeScores(t *testing.T) {
 func getTestDB(t *testing.T) *store.Storage {
 	db, err := store.NewStorageConn(store.StorageConfig{
 		DatabaseName:          store.DatabaseName,
-		CrawledDataCollection: store.CrawledDataTestCollection,
-		WebgraphCollection:    store.WebgraphTestCollection,
-		WordIndexCollection:   store.WordIndexTestCollection,
+		CrawledDataCollection: store.CrawledDataCollection,
+		WebgraphCollection:    store.WebgraphCollection,
+		WordIndexCollection:   store.WordIndexCollection,
 	})
 	if err != nil {
 		t.Fatal(err)

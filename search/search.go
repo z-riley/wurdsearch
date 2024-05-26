@@ -12,6 +12,7 @@ import (
 
 type PageData struct {
 	Score        float64   `bson:"score"`
+	Title        string    `bson:"title"`
 	LastAccessed time.Time `bson:"lastAccessed"`
 	Content      string    `bson:"content"`
 }
@@ -68,6 +69,7 @@ func (s *Searcher) Search(query string) (map[string]PageData, error) {
 		const contentTrim = 150
 		results[URL] = PageData{
 			Score:        score,
+			Title:        pageData.Title,
 			LastAccessed: pageData.LastAccessed,
 			Content:      truncate(pageData.Content, 150),
 		}

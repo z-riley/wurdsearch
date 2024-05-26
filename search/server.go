@@ -17,7 +17,7 @@ func NewServer() (*Handler, error) {
 		DatabaseName:          store.DatabaseName,
 		CrawledDataCollection: store.CrawledDataCollection,
 		WebgraphCollection:    store.WebgraphCollection,
-		WordIndexCollection:   store.WordIndexTestCollection,
+		WordIndexCollection:   store.WordIndexCollection,
 	})
 	if err != nil {
 		log.Warn().Msg("Make sure DB is running")
@@ -63,7 +63,7 @@ func (s *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for URL, data := range result {
 		listings = append(listings,
 			Listing{
-				Title:   []Text{{Value: "placeholder title", IsBold: true}},
+				Title:   []Text{{Value: data.Title, IsBold: false}},
 				Extract: []Text{{Value: data.Content, IsBold: false}},
 				URL:     URL,
 				Source:  "Turdsearch",
