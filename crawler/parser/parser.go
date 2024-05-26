@@ -2,12 +2,12 @@ package parser
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"net/url"
 	"regexp"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/rs/zerolog/log"
@@ -136,25 +136,6 @@ func extractTitle(body io.Reader) string {
 	if title == "" {
 		return "title not found"
 	}
+	fmt.Println(title)
 	return strings.TrimSpace(title)
-}
-
-// UNUSED:
-// ensureUTF8 replaces multi-byte characters with a replacement character
-func ensureUTF8(input string, replacement rune) string {
-	if utf8.ValidString(input) {
-		return input
-	}
-	v := make([]rune, 0, len(input))
-	for i, r := range input {
-		if r == utf8.RuneError {
-			_, size := utf8.DecodeRuneInString(input[i:])
-			if size == 1 {
-				v = append(v, replacement) // replace invalid rune
-				continue
-			}
-		}
-		v = append(v, r)
-	}
-	return string(v)
 }
