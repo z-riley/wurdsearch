@@ -20,6 +20,7 @@ func main() {
 	}
 	defer db.Destroy()
 
+	// Word index
 	log.Info().Msg("Generating word index...")
 	start := time.Now()
 	w, err := indexer.NewWordIndexer(db)
@@ -31,7 +32,8 @@ func main() {
 	}
 	log.Info().Msgf("Generated word index in %v", time.Since(start))
 
-	log.Info().Msg("Generating web graph")
+	// Web graph
+	log.Info().Msg("Generating web graph...")
 	start = time.Now()
 	g := indexer.NewWebgrapher(db)
 	if err := g.GenerateWebgraph(); err != nil {

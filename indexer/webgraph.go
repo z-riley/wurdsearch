@@ -42,7 +42,7 @@ func (w *Webgrapher) GenerateWebgraph() error {
 			return fmt.Errorf("Failed to save node: %v", err)
 		}
 
-		// Note: not possible to populate linksFrom field because it is N^2 database
+		// Note: not possible to populate linksFrom field easily because it needs N^2 database
 		// calls, where N is the number of crawled documents. Leaving as TODO for now
 
 	}
