@@ -68,7 +68,7 @@ func (s *Searcher) Search(query string) (map[string]PageData, error) {
 		const contentTrim = 150
 		results[URL] = PageData{
 			Score:        score,
-			LastAccessed: time.Time{},
+			LastAccessed: pageData.LastAccessed,
 			Content:      truncate(pageData.Content, 150),
 		}
 	}

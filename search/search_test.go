@@ -3,7 +3,6 @@ package search
 import (
 	"fmt"
 	"reflect"
-	"sort"
 	"testing"
 
 	"github.com/zac460/turdsearch/common/store"
@@ -20,23 +19,7 @@ func TestSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	// Print results in ascending order
-	type Entry struct {
-		Key   string
-		Value float64
-	}
-
-	var entries []Entry
-	for key, value := range results {
-		entries = append(entries, Entry{Key: key, Value: value})
-	}
-	sort.Slice(entries, func(i, j int) bool {
-		return entries[i].Value < entries[j].Value // Descending order
-	})
-	for _, entry := range entries {
-		fmt.Printf("%.3f%% - %s\n", entry.Value, entry.Key)
-	}
+	fmt.Println(results)
 }
 
 func TestMergeScores(t *testing.T) {
