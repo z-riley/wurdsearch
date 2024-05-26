@@ -55,7 +55,6 @@ func (db *Storage) FetchPageData(url string) (PageData, error) {
 	if err != nil {
 		return PageData{}, err
 	}
-	log.Info().Msgf("Retrieved page data: %+v\n", retrievedPageData)
 	return retrievedPageData, nil
 }
 

@@ -10,13 +10,19 @@ import (
 	"github.com/zac460/turdsearch/common/store"
 )
 
-type Searcher struct {
-	lemmatiser *lemmatiser.Lemmatiser
-	db         *store.Storage
+type PageData struct {
+	Score        float64   `bson:"score"`
+	LastAccessed time.Time `bson:"lastAccessed"`
+	Content      string    `bson:"content"`
 }
 
 // PageScores holds number scores for URLs
 type PageScores map[string]float64
+
+type Searcher struct {
+	lemmatiser *lemmatiser.Lemmatiser
+	db         *store.Storage
+}
 
 func NewSearcher(store *store.Storage) (*Searcher, error) {
 	l, err := lemmatiser.NewLemmatiser()
@@ -31,14 +37,14 @@ func NewSearcher(store *store.Storage) (*Searcher, error) {
 }
 
 // Search executes a search, returning a slice of relevant documents
-func (s *Searcher) Search(query string) (PageScores, error) {
+func (s *Searcher) Search(query string) (map[string]PageData, error) {
 	start := time.Now()
 	query = sanitiseQuery(query)
 
 	// TF-IDF
 	TFIDFScores, err := s.TFIDF(query)
 	if err != nil {
-		return PageScores{}, err
+		return nil, err
 	}
 
 	// Do weighted sum with other search algorithms once they're implemented
@@ -47,11 +53,27 @@ func (s *Searcher) Search(query string) (PageScores, error) {
 		[]float64{1.0},
 	)
 	if err != nil {
-		return PageScores{}, err
+		return nil, err
 	}
 
 	log.Info().Msgf("Found %d results for '%s', in %dms", len(finalScores), query, time.Since(start).Milliseconds())
-	return finalScores, nil
+
+	// Get accompanying page data from DB
+	results := make(map[string]PageData)
+	for URL, score := range finalScores {
+		pageData, err := s.db.FetchPageData(URL)
+		if err != nil {
+			return nil, err
+		}
+		const contentTrim = 150
+		results[URL] = PageData{
+			Score:        score,
+			LastAccessed: time.Time{},
+			Content:      truncate(pageData.Content, 150),
+		}
+	}
+
+	return results, nil
 }
 
 // sanitiseQuery sanitises a search query before use in search algorithms
@@ -100,4 +122,15 @@ func mergeScores(scores []PageScores, weights []float64) (PageScores, error) {
 		}
 	}
 	return output, nil
+}
+
+// truncate takes the first n characters of a string
+func truncate(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+	if n <= 3 {
+		return s[:n]
+	}
+	return strings.TrimSpace(s[:n-3]) + "..."
 }
