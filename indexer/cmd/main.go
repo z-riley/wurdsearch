@@ -20,16 +20,23 @@ func main() {
 	}
 	defer db.Destroy()
 
+	log.Info().Msg("Generating word index...")
+	start := time.Now()
 	w, err := indexer.NewWordIndexer(db)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to make new word indexer")
 	}
-
-	start := time.Now()
-
 	if err := w.GenerateWordIndex(db.Config.CrawledDataCollection); err != nil {
 		log.Fatal().Err(err).Msg("Failed to generate word index")
 	}
-
 	log.Info().Msgf("Generated word index in %v", time.Since(start))
+
+	log.Info().Msg("Generating web graph")
+	start = time.Now()
+	g := indexer.NewWebgrapher(db)
+	if err := g.GenerateWebgraph(); err != nil {
+		log.Fatal().Err(err).Msg("Failed to generate word index")
+	}
+	log.Info().Msgf("Generated web graph in %v", time.Since(start))
+
 }

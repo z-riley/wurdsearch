@@ -43,7 +43,7 @@ func (w *Webgrapher) GenerateWebgraph() error {
 		}
 
 		// Note: not possible to populate linksFrom field because it is N^2 database
-		// calls, where N is the number of crawled documents. Leaving as todo for now
+		// calls, where N is the number of crawled documents. Leaving as TODO for now
 
 	}
 	return nil
