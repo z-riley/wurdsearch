@@ -2,6 +2,8 @@ package search
 
 import (
 	"errors"
+	"hash/crc32"
+	"sort"
 	"strings"
 	"time"
 
@@ -10,11 +12,12 @@ import (
 	"github.com/zac460/turdsearch/common/store"
 )
 
-type PageData struct {
-	Score        float64   `bson:"score"`
-	Title        string    `bson:"title"`
-	LastAccessed time.Time `bson:"lastAccessed"`
-	Content      string    `bson:"content"`
+type pageData struct {
+	url          string
+	score        float64
+	title        string
+	lastAccessed time.Time
+	content      string
 }
 
 // PageScores holds number scores for URLs
@@ -38,7 +41,7 @@ func NewSearcher(store *store.Storage) (*Searcher, error) {
 }
 
 // Search executes a search, returning a slice of relevant documents
-func (s *Searcher) Search(query string) (map[string]PageData, error) {
+func (s *Searcher) Search(query string) ([]pageData, error) {
 	start := time.Now()
 	query = sanitiseQuery(query)
 
@@ -60,22 +63,42 @@ func (s *Searcher) Search(query string) (map[string]PageData, error) {
 	log.Info().Msgf("Found %d results for '%s', in %dms", len(finalScores), query, time.Since(start).Milliseconds())
 
 	// Get accompanying page data from DB
-	results := make(map[string]PageData)
+	results := make(map[string]pageData)
 	for URL, score := range finalScores {
-		pageData, err := s.db.FetchPageData(URL)
+		page, err := s.db.FetchPageData(URL)
 		if err != nil {
 			return nil, err
 		}
-		const contentTrim = 150
-		results[URL] = PageData{
-			Score:        score,
-			Title:        pageData.Title,
-			LastAccessed: pageData.LastAccessed,
-			Content:      truncate(pageData.Content, 150),
+		results[URL] = pageData{
+			url:          URL,
+			score:        score,
+			title:        page.Title,
+			lastAccessed: page.LastAccessed,
+			content:      truncate(page.Content, 150),
 		}
 	}
 
-	return results, nil
+	return sortResults(results), nil
+}
+
+// sortResults converts an unordered map of search results into an slice in descending score
+// order. Results of equal scoring are arbitrated by adding a tiny pseudo-random value
+func sortResults(results map[string]pageData) []pageData {
+	var sortedResults []pageData
+	for _, data := range results {
+		// Add a tiny value to the score so equal values have a consistent order.
+		// The value is based on the letters in the URL to achieve repeatability
+		hash := crc32.NewIEEE()
+		hash.Write([]byte(data.url))
+		data.score += float64(hash.Sum32()) * 1e-20
+
+		sortedResults = append(sortedResults, data)
+	}
+	// Descending order
+	sort.SliceStable(sortedResults, func(i, j int) bool {
+		return sortedResults[i].score > sortedResults[j].score
+	})
+	return sortedResults
 }
 
 // sanitiseQuery sanitises a search query before use in search algorithms

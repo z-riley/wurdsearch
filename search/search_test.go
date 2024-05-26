@@ -20,6 +20,7 @@ func TestSearch(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Printf("%+v", results)
+
 }
 
 func TestMergeScores(t *testing.T) {

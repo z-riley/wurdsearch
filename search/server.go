@@ -60,12 +60,12 @@ func (s *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Assemble JSON for front-end
 	var listings []Listing
-	for URL, data := range result {
+	for _, data := range result {
 		listings = append(listings,
 			Listing{
-				Title:   []Text{{Value: data.Title, IsBold: false}},
-				Extract: []Text{{Value: data.Content, IsBold: false}},
-				URL:     URL,
+				Title:   []Text{{Value: data.title, IsBold: false}},
+				Extract: []Text{{Value: data.content, IsBold: false}},
+				URL:     data.url,
 				Source:  "Turdsearch",
 			},
 		)
