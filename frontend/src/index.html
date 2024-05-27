@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Metas -->
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Page title -->
+  <title>TURDSEARCH - Search</title>
+  <meta name="description" content="The free, open-source and non-profit search engine.">
+
+  <!-- Favicons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="manifest" href="/images/site.webmanifest">
+  <link rel="mask-icon" href="/images/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- Fonts import -->
+  <link rel="preload" href="/fonts/inter/inter.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="/fonts/inter/inter.css">
+  </noscript>
+
+  <!-- CSS Stylesheets (this is critical CSS) -->
+  <link rel="stylesheet" type="text/css" href="/css/reset.css">
+  <link rel="stylesheet" type="text/css" href="/css/theme.css">
+  <link rel="stylesheet" type="text/css" href="/css/global.css">
+
+  <!-- Phosphor Icons (https://github.com/phosphor-icons/phosphor-home) -->
+  <link rel="preload" href="/fonts/phosphor/icons.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="/fonts/phosphor/icons.css">
+  </noscript>
+
+  <!-- Custom Element Polyfill for Safari -->
+  <script src="https://unpkg.com/@ungap/custom-elements" type="module"></script>
+
+</head>
+
+<body>
+  <turdsearch-app></turdsearch-app>
+  <noscript>
+    <main class="noscript">
+      <img class="brand-icon" src="/images/logo.svg" width="40" height="40" alt="turdsearch logo">
+      <h1>
+        Welcome to turdsearch, the free, open-source and non-profit search engine.
+      </h1>
+      <p>This website requires you to support/enable scripts.</p>
+      <p>
+        More information on
+        <a href="https://github.com/turdsearch/turdsearch" target="_blank">
+          Github
+        </a>
+        .
+      </p>
+    </main>
+  </noscript>
+  <!-- Javasript entrypoint -->
+  <script src="./index.js" type="module"></script>
+</body>
+
+</html>
