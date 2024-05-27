@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	"github.com/enriquebris/goconcurrentqueue"
+	"github.com/rs/zerolog/log"
 )
 
 const maxLength = 100000
@@ -30,7 +31,8 @@ func (f *Frontier) Push(item Link) error {
 	if f.Contains(item) {
 		return fmt.Errorf("Frontier already contains: %v", item)
 	} else if f.queue.GetLen() >= maxLength {
-		return fmt.Errorf("Not adding link to Froniter: length exceeds %d", maxLength)
+		log.Warn().Msgf("Not adding link to Froniter: length exceeds %d", maxLength)
+		return nil
 	} else {
 		err := f.queue.Enqueue(item)
 		if err != nil {

@@ -58,7 +58,8 @@ func (w *WordIndexer) GenerateWordIndex(collectionName string) error {
 		}
 
 		count++
-		log.Info().Msgf("Generating word index. Progress: %d/%d", count, length)
+		percentage := float64(count) / float64(length) * 100
+		log.Info().Msgf("Generating word index. Progress: %d/%d (%.2f%%)", count, length, percentage)
 
 		wg.Add(1)
 		sem <- struct{}{} // take from semaphore

@@ -115,7 +115,7 @@ func (db *Storage) UpdateWordReferences(URL string, wordCounts map[string]uint, 
 	opts := options.BulkWrite().SetOrdered(true)
 	results, err := collection.BulkWrite(ctx, models, opts)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to bulk write")
+		return fmt.Errorf("Failed to bulk write: %v", err)
 	}
 
 	log.Debug().Msgf("Matched %d documents, modified %d documents, upserted %d documents", results.MatchedCount, results.ModifiedCount, results.UpsertedCount)

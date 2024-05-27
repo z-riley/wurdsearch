@@ -172,7 +172,12 @@ func (c *Crawler) crawlPage(url *url.URL) (store.PageData, error) {
 	defer resp.Body.Close()
 
 	//  4. Parse page contents
-	contentType := resp.Header["Content-Type"][0]
+	contentTypeHeader, ok := resp.Header["Content-Type"]
+	if !ok {
+		return store.PageData{}, fmt.Errorf("Not parsing page %s because of Content-Type header missing", url.String())
+	}
+	contentType := contentTypeHeader[0]
+
 	parsable := strings.Contains(contentType, "text/html") || strings.Contains(contentType, "text/plain")
 	if !parsable {
 		return store.PageData{}, fmt.Errorf("Not parsing page %s because of non-text content type: %s", url.String(), contentType)
