@@ -1,6 +1,6 @@
 # Turdsearch - The world's worst search engine
 
-![logo](./frontend/assets/images/android-chrome-192x192.png)
+![demo](./docs/turdsearch-demo.gif)
 
 ## Usage Instructions
 
@@ -16,4 +16,4 @@
 
 6. Visit [http://localhost:5173](http://localhost:5173/) to use Turdsearch!
 
-
+![logo](./frontend/assets/images/android-chrome-192x192.png)
