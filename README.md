@@ -1,6 +1,6 @@
-# turdsearch
+# Turdsearch - The world's worst search engine
 
-The world's worst surch engine
+![logo](./frontend/assets/images/android-chrome-192x192.png)
 
 ## Usage Instructions
 
@@ -15,3 +15,5 @@ The world's worst surch engine
 5. Start the frontend: `cd frontend && npm run dev`
 
 6. Visit [http://localhost:5173](http://localhost:5173/) to use Turdsearch!
+
+
