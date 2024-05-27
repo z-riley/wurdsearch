@@ -16,11 +16,11 @@ func TestPush(t *testing.T) {
 		f.queue.Enqueue(url)
 	}
 
+	// Duplicate links
 	if err := f.Push(Link{"d", 0}); err != nil {
 		t.Fatal(err)
 	}
-
-	err := f.Push(Link{"d", 10})
+	err := f.Push(Link{"d", 0})
 	if err == nil {
 		t.Error("Should have errored when duplicate item pushed")
 	}

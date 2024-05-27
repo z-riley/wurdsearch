@@ -8,6 +8,8 @@ import (
 	"github.com/enriquebris/goconcurrentqueue"
 )
 
+const maxLength = 100000
+
 type Link struct {
 	URL   string
 	Depth int
@@ -27,6 +29,8 @@ func NewFrontier() *Frontier {
 func (f *Frontier) Push(item Link) error {
 	if f.Contains(item) {
 		return fmt.Errorf("Frontier already contains: %v", item)
+	} else if f.queue.GetLen() >= maxLength {
+		return fmt.Errorf("Not adding link to Froniter: length exceeds %d", maxLength)
 	} else {
 		err := f.queue.Enqueue(item)
 		if err != nil {
