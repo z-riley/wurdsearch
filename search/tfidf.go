@@ -34,11 +34,13 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 
 	// 2. Calculate page vectors
 	// a. Fetch all documents relevant to search query
+	log.Debug().Msg("Fetching relevant docs")
 	urls, err := s.getEveryRelevantDoc(words, 3)
 	if err != nil {
 		return PageScores{}, err
 	}
 	// b. Calculate IDF for each word
+	log.Debug().Msg("Calculating IDF for each word")
 	IDFs := make(map[string]float64)
 	for _, word := range words {
 		IDF, err := s.inverseDocumentFrequency(word)
@@ -48,12 +50,14 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 		IDFs[word] = IDF
 	}
 	// c. Calculate TF-IDF vectors
+	log.Debug().Msg("Calculating TF-IDF vectors")
 	vectors, err := s.generateAllVectors(urls, words, IDFs)
 	if err != nil {
 		return PageScores{}, fmt.Errorf("Failed to generate vectors: %v", err)
 	}
 
 	// 3. Get query vector
+	log.Debug().Msg("Getting query vector")
 	queryVec, err := s.queryVector(words)
 	if err != nil {
 		return PageScores{}, err
@@ -61,6 +65,7 @@ func (s *Searcher) TFIDF(query string) (PageScores, error) {
 	log.Debug().Msgf("Seach vector: %v", queryVec)
 
 	// 4. Compare the query vector to each page vector
+	log.Debug().Msg("Comparing the query vector to each page vector")
 	scores := make(PageScores)
 	for _, pageVec := range vectors {
 		theta := theta(queryVec, pageVec)

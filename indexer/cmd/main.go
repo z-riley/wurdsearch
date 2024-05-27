@@ -4,11 +4,13 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
+	"github.com/zac460/turdsearch/common/logging"
 	"github.com/zac460/turdsearch/common/store"
 	"github.com/zac460/turdsearch/indexer"
 )
 
 func main() {
+	logging.SetUpLogger(false)
 	db, err := store.NewStorageConn(store.StorageConfig{
 		DatabaseName:          store.DatabaseName,
 		CrawledDataCollection: store.CrawledDataCollection,

@@ -46,11 +46,12 @@ func (s *Searcher) Search(query string) ([]pageData, error) {
 	query = sanitiseQuery(query)
 
 	// TF-IDF
+	log.Debug().Msgf("Getting TD-IDF scores for: %s", query)
 	TFIDFScores, err := s.TFIDF(query)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	// Do weighted sum with other search algorithms once they're implemented
 	finalScores, err := mergeScores(
 		[]PageScores{TFIDFScores},
