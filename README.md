@@ -4,7 +4,7 @@
 
 ## Usage Instructions
 
-1. Make sure MongoDB is [installed](https://www.mongodb.com/docs/manual/installation/) and running
+1. Make sure MongoDB is [installed](https://www.mongodb.com/docs/manual/installation/) and running on port 27017.
 
 2. Crawl some websites with `go run crawler/cmd/main.go`. Set up the seed websites and crawl depth in `main.go`
 
