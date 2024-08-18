@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/rs/zerolog/log"
-	"github.com/zac460/turdsearch/common/logging"
-	"github.com/zac460/turdsearch/search"
+	"github.com/z-riley/turdsearch/common/logging"
+	"github.com/z-riley/turdsearch/search"
 )
 
 const port = 8080

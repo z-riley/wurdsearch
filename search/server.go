@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/rs/zerolog/log"
-	"github.com/zac460/turdsearch/common/store"
+	"github.com/z-riley/turdsearch/common/store"
 )
 
 type Handler struct {

@@ -9,7 +9,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	// "github.com/zac460/herolog"
+	// "github.com/z-riley/herolog"
 )
 
 func SetUpLogger(httpLogging bool) {

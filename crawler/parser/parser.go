@@ -11,7 +11,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/rs/zerolog/log"
-	"github.com/zac460/turdsearch/common/store"
+	"github.com/z-riley/turdsearch/common/store"
 	"golang.org/x/net/html"
 )
 

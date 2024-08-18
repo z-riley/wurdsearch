@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"github.com/zac460/turdsearch/common/logging"
-	"github.com/zac460/turdsearch/crawler"
+	"github.com/z-riley/turdsearch/common/logging"
+	"github.com/z-riley/turdsearch/crawler"
 )
 
 const (

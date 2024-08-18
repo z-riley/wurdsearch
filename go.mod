@@ -1,19 +1,20 @@
-module github.com/zac460/turdsearch
+module github.com/z-riley/turdsearch
 
 go 1.22.2
 
-replace github.com/enriquebris/goconcurrentqueue v0.7.0 => github.com/zac460/goconcurrentqueue v0.0.0-20240418054722-110012582d8d
+replace github.com/enriquebris/goconcurrentqueue v0.7.0 => github.com/z-riley/goconcurrentqueue v1.0.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.1
 	github.com/aaaton/golem/v4 v4.0.1
 	github.com/aaaton/golem/v4/dicts/en v1.0.1
-	github.com/enriquebris/goconcurrentqueue v0.7.0
 	github.com/jimsmart/grobotstxt v1.0.3
 	github.com/rs/zerolog v1.32.0
 	go.mongodb.org/mongo-driver v1.15.0
 	golang.org/x/net v0.24.0
 )
+
+require github.com/enriquebris/goconcurrentqueue v0.7.0
 
 require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect

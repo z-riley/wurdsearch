@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"github.com/zac460/turdsearch/common/lemmatiser"
-	"github.com/zac460/turdsearch/common/store"
+	"github.com/z-riley/turdsearch/common/lemmatiser"
+	"github.com/z-riley/turdsearch/common/store"
 )
 
 type pageData struct {
@@ -51,7 +51,7 @@ func (s *Searcher) Search(query string) ([]pageData, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Do weighted sum with other search algorithms once they're implemented
 	finalScores, err := mergeScores(
 		[]PageScores{TFIDFScores},
