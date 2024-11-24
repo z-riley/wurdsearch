@@ -11,7 +11,7 @@ type Lemmatiser struct {
 	lemmatiser *golem.Lemmatizer
 }
 
-// NewLemmatiser creates a new lemmatisor object
+// NewLemmatiser creates a new lemmatiser object.
 func NewLemmatiser() (*Lemmatiser, error) {
 	lemmatiser, err := golem.New(en.New())
 	if err != nil {
@@ -23,7 +23,7 @@ func NewLemmatiser() (*Lemmatiser, error) {
 }
 
 // Lemmatise returns a word in it's base form. E.g., "running" -> "run".
-// Based on https://raw.githubusercontent.com/michmech/lemmatization-lists/master/lemmatization-en.txt
+// Based on https://raw.githubusercontent.com/michmech/lemmatization-lists/master/lemmatization-en.txt.
 func (l *Lemmatiser) Lemmatise(word string) string {
 	return l.lemmatiser.Lemma(word)
 }

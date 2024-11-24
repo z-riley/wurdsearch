@@ -40,7 +40,7 @@ func NewSearcher(store *store.Storage) (*Searcher, error) {
 	}, nil
 }
 
-// Search executes a search, returning a slice of relevant documents
+// Search executes a search, returning a slice of relevant documents.
 func (s *Searcher) Search(query string) ([]pageData, error) {
 	start := time.Now()
 	query = sanitiseQuery(query)
@@ -83,7 +83,7 @@ func (s *Searcher) Search(query string) ([]pageData, error) {
 }
 
 // sortResults converts an unordered map of search results into an slice in descending score
-// order. Results of equal scoring are arbitrated by adding a tiny pseudo-random value
+// order. Results of equal scoring are arbitrated by adding a tiny pseudo-random value.
 func sortResults(results map[string]pageData) []pageData {
 	var sortedResults []pageData
 	for _, data := range results {
@@ -102,7 +102,7 @@ func sortResults(results map[string]pageData) []pageData {
 	return sortedResults
 }
 
-// sanitiseQuery sanitises a search query before use in search algorithms
+// sanitiseQuery sanitises a search query before use in search algorithms.
 func sanitiseQuery(query string) string {
 	query = strings.ToLower(query)
 	query = strings.TrimSpace(query)
@@ -122,7 +122,7 @@ func sanitiseQuery(query string) string {
 	return result
 }
 
-// mergeScores combines serach results according to their given weightings
+// mergeScores combines serach results according to their given weightings.
 func mergeScores(scores []PageScores, weights []float64) (PageScores, error) {
 	if len(scores) != len(weights) {
 		return PageScores{}, errors.New("pageScores and weights length mismatch")
@@ -150,7 +150,7 @@ func mergeScores(scores []PageScores, weights []float64) (PageScores, error) {
 	return output, nil
 }
 
-// truncate takes the first n characters of a string
+// truncate takes the first n characters of a string.
 func truncate(s string, n int) string {
 	if len(s) <= n {
 		return s

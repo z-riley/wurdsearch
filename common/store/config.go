@@ -18,7 +18,8 @@ const (
 	connectionPool = 800 // manually tuned for best results
 )
 
-type StorageConfig struct {
+// Config holds settings used in the store package.
+type Config struct {
 	DatabaseName          string
 	CrawledDataCollection string
 	WebgraphCollection    string

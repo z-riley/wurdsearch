@@ -9,20 +9,13 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	// "github.com/z-riley/herolog"
 )
 
-func SetUpLogger(httpLogging bool) {
+// Init sets up the logger with settings configured for the project.
+func Init() {
 	var multiWriter io.Writer
+	multiWriter = io.MultiWriter(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
 
-	if httpLogging {
-		multiWriter = io.MultiWriter(
-			zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339},
-			// herolog.NewLogHTTPWriter("http://0.0.0.0:2021", true),
-		)
-	} else {
-		multiWriter = io.MultiWriter(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
-	}
 	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
 		return filepath.Base(file) + ":" + strconv.Itoa(line)
 	}

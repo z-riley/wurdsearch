@@ -22,7 +22,7 @@ const (
 )
 
 func main() {
-	logging.SetUpLogger(false)
+	logging.Init()
 	log.Info().Msg("Begin")
 
 	c, err := crawler.NewCrawler(crawlGracePeriod)

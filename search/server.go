@@ -13,7 +13,7 @@ type Handler struct {
 }
 
 func NewServer() (*Handler, error) {
-	db, err := store.NewStorageConn(store.StorageConfig{
+	db, err := store.NewStorageConn(store.Config{
 		DatabaseName:          store.DatabaseName,
 		CrawledDataCollection: store.CrawledDataCollection,
 		WebgraphCollection:    store.WebgraphCollection,
@@ -33,11 +33,11 @@ func NewServer() (*Handler, error) {
 	}, nil
 }
 
-// crap to be moved
 type Text struct {
 	Value  string `json:"value"`
 	IsBold bool   `json:"is_bold"`
 }
+
 type Listing struct {
 	Title   []Text `json:"title"`
 	Extract []Text `json:"extract"`

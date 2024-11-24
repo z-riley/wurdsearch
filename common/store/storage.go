@@ -12,12 +12,12 @@ import (
 )
 
 type Storage struct {
-	Config StorageConfig
+	Config Config
 	client *mongo.Client
 	cursor *mongo.Cursor
 }
 
-func NewStorageConn(config StorageConfig) (*Storage, error) {
+func NewStorageConn(config Config) (*Storage, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
@@ -77,7 +77,7 @@ func NewStorageConn(config StorageConfig) (*Storage, error) {
 	}, nil
 }
 
-// Destroy disconnects from the database
+// Destroy disconnects from the database.
 func (db *Storage) Destroy() {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
@@ -102,7 +102,7 @@ func (db *Storage) InitIterator(collectionName string) error {
 	return nil
 }
 
-// Len returns the number of documents in a collection
+// Len returns the number of documents in a collection.
 func (db *Storage) Len(collectionName string) (int64, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
@@ -119,7 +119,7 @@ func (db *Storage) Len(collectionName string) (int64, error) {
 	return length, nil
 }
 
-// MaxConnections returns the size of the connection pool
+// MaxConnections returns the size of the connection pool.
 func MaxConnections() int {
 	return connectionPool
 }

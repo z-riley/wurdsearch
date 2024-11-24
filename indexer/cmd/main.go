@@ -10,8 +10,9 @@ import (
 )
 
 func main() {
-	logging.SetUpLogger(false)
-	db, err := store.NewStorageConn(store.StorageConfig{
+	logging.Init()
+
+	db, err := store.NewStorageConn(store.Config{
 		DatabaseName:          store.DatabaseName,
 		CrawledDataCollection: store.CrawledDataCollection,
 		WebgraphCollection:    store.WebgraphCollection,

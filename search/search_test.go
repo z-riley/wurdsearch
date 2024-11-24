@@ -79,7 +79,7 @@ func TestMergeScores(t *testing.T) {
 }
 
 func getTestDB(t *testing.T) *store.Storage {
-	db, err := store.NewStorageConn(store.StorageConfig{
+	db, err := store.NewStorageConn(store.Config{
 		DatabaseName:          store.DatabaseName,
 		CrawledDataCollection: store.CrawledDataCollection,
 		WebgraphCollection:    store.WebgraphCollection,

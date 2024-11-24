@@ -13,7 +13,7 @@ type Indexer struct {
 
 func NewIndexer() (*Indexer, error) {
 
-	db, err := store.NewStorageConn(store.StorageConfig{
+	db, err := store.NewStorageConn(store.Config{
 		DatabaseName:          store.DatabaseName,
 		CrawledDataCollection: store.CrawledDataCollection,
 		WebgraphCollection:    store.WebgraphCollection,

@@ -7,7 +7,7 @@ import (
 )
 
 func TestGenerateWebgraph(t *testing.T) {
-	db, err := store.NewStorageConn(store.StorageConfig{
+	db, err := store.NewStorageConn(store.Config{
 		DatabaseName:          store.DatabaseName,
 		CrawledDataCollection: store.CrawledDataTestCollection,
 		WebgraphCollection:    store.WebgraphTestCollection,

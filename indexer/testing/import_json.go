@@ -11,7 +11,7 @@ import (
 func ImportJson(filepath, database, collection string) error {
 
 	// Make a new storage object to index collection by URL
-	db, err := store.NewStorageConn(store.StorageConfig{
+	db, err := store.NewStorageConn(store.Config{
 		DatabaseName:          database,
 		CrawledDataCollection: store.CrawledDataTestCollection,
 		WebgraphCollection:    store.WebgraphTestCollection,

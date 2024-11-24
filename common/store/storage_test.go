@@ -28,8 +28,8 @@ func TestLen(t *testing.T) {
 	fmt.Println(length)
 }
 
-func getTestConfig() StorageConfig {
-	return StorageConfig{
+func getTestConfig() Config {
+	return Config{
 		DatabaseName:          DatabaseName,
 		CrawledDataCollection: CrawledDataTestCollection,
 		WebgraphCollection:    WebgraphTestCollection,

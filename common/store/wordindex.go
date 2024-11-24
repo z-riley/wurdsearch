@@ -12,7 +12,7 @@ import (
 )
 
 // WordEntry contains which websites use a particular word, and how many times
-// it appears on each page
+// it appears on each page.
 type WordEntry struct {
 	// Word is the word in the entry
 	Word string `bson:"word"`
@@ -33,7 +33,7 @@ func (w *WordEntry) Encode() WordEntry {
 	}
 }
 
-// Decode changes "`"s to "."s because "." confuses Mongo
+// Decode changes "`"s to "."s because "." confuses poor Mongo.
 func (w *WordEntry) Decode() WordEntry {
 	decodedRefs := make(map[string]Reference)
 	for url, reference := range w.References {
@@ -51,7 +51,7 @@ type Reference struct {
 	Length uint `bson:"length"`
 }
 
-// Getword retrieves a word index document
+// Getword retrieves a word index document.
 func (db *Storage) GetWordIndex(word string) (WordEntry, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
@@ -66,7 +66,7 @@ func (db *Storage) GetWordIndex(word string) (WordEntry, error) {
 	return retrievedWordEntry.Decode(), nil
 }
 
-// SaveWord inserts or overwrites a word index doc
+// SaveWord inserts or overwrites a word index doc.
 func (db *Storage) SaveWord(word WordEntry) error {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
@@ -90,7 +90,7 @@ func (db *Storage) SaveWord(word WordEntry) error {
 	return nil
 }
 
-// UpdateWordReferences inserts or overwrites a word index document for a given URL
+// UpdateWordReferences inserts or overwrites a word index document for a given URL.
 func (db *Storage) UpdateWordReferences(URL string, wordCounts map[string]uint, totalWords uint) error {
 	// Prepare models for bulk write
 	var models []mongo.WriteModel

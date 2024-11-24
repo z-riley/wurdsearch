@@ -16,10 +16,6 @@ import (
 	"github.com/z-riley/turdsearch/crawler/parser"
 )
 
-const (
-	crawlerName = "TurdSeeker" // name of user agent in HTTP headers
-)
-
 var errDepthReached = errors.New("crawl depth reached")
 
 type Crawler struct {
@@ -31,7 +27,7 @@ type Crawler struct {
 
 func NewCrawler(gracePeriod time.Duration) (*Crawler, error) {
 
-	db, err := store.NewStorageConn(store.StorageConfig{
+	db, err := store.NewStorageConn(store.Config{
 		DatabaseName:          store.DatabaseName,
 		CrawledDataCollection: store.CrawledDataCollection,
 		WebgraphCollection:    store.WebgraphCollection,
@@ -189,6 +185,9 @@ func (c *Crawler) crawlPage(url *url.URL) (store.PageData, error) {
 
 	return data, nil
 }
+
+// crawlerName is the user agent in HTTP headers.
+const crawlerName = "TSeeker"
 
 func checkPageAllowed(robotsTxt, url string) bool {
 	return grobotstxt.AgentAllowed(robotsTxt, crawlerName, url)

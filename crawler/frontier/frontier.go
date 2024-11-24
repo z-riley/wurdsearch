@@ -26,7 +26,7 @@ func NewFrontier() *Frontier {
 	}
 }
 
-// Push puts an item at the back of the frontier queue. Returns error if the item already exists
+// Push puts an item at the back of the frontier queue. Returns error if the item already exists.
 func (f *Frontier) Push(item Link) error {
 	if f.Contains(item) {
 		return fmt.Errorf("Frontier already contains: %v", item)
@@ -42,7 +42,7 @@ func (f *Frontier) Push(item Link) error {
 	}
 }
 
-// Dequeue removes an element from the front of the frontier. Returns error if queue is locked or empty
+// Dequeue removes an element from the front of the frontier. Returns error if queue is locked or empty.
 func (f *Frontier) Dequeue() (Link, error) {
 	link, err := f.queue.Dequeue()
 	if err != nil {
@@ -63,7 +63,7 @@ func (f *Frontier) GetAll() []string {
 	return URLs
 }
 
-// GetLen returns the number elements in the frontier
+// GetLen returns the number elements in the frontier.
 func (f *Frontier) Len() int {
 	return f.queue.GetLen()
 }
@@ -73,7 +73,7 @@ type Row struct {
 	Count int
 }
 
-// TopNWebsites gets the most common websites in the frontier, ordered by number of occurances
+// TopNWebsites gets the most common websites in the frontier, ordered by number of occurances.
 func (f *Frontier) TopNWebsites(n int) ([]Row, error) {
 	// Map to count the occurrence of each website
 	counts := make(map[string]int)
@@ -105,7 +105,7 @@ func (f *Frontier) TopNWebsites(n int) ([]Row, error) {
 	return rows[:n], nil
 }
 
-// Contains checks if an item exists in the frontier queue
+// Contains checks if an item exists in the frontier queue.
 func (f *Frontier) Contains(item Link) bool {
 	for _, a := range f.queue.Slice {
 		if a == item {
@@ -114,16 +114,3 @@ func (f *Frontier) Contains(item Link) bool {
 	}
 	return false
 }
-
-// // toStringSlice returns a copy of an any slice as a string slice
-// func toStringSlice(a []any) ([]string, error) {
-// 	var s []string
-// 	for _, v := range a {
-// 		str, ok := v.(string)
-// 		if !ok {
-// 			return nil, fmt.Errorf("Non-string element found: %v", v)
-// 		}
-// 		s = append(s, str)
-// 	}
-// 	return s, nil
-// }

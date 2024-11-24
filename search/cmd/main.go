@@ -12,7 +12,7 @@ import (
 const port = 8080
 
 func main() {
-	logging.SetUpLogger(false)
+	logging.Init()
 
 	handler, err := search.NewServer()
 	if err != nil {

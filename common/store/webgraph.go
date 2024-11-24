@@ -9,14 +9,14 @@ import (
 )
 
 // Node contains data about which other sites link to and from itself.
-// This is used to help calculate the "importance" of the site
+// This is used to help calculate the "importance" of the site.
 type Node struct {
 	Url       string   `bson:"url"`
 	LinksTo   []string `bson:"linksTo"`
 	LinksFrom []string `bson:"linksFrom"`
 }
 
-// SaveNode inserts or overwrites a webgraph node
+// SaveNode inserts or overwrites a webgraph node.
 func (db *Storage) SaveNode(node Node) error {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()

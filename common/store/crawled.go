@@ -20,7 +20,7 @@ type PageData struct {
 	Content      string    `bson:"content"`
 }
 
-// SavePageData inserts or overwrites a page data document
+// SavePageData inserts or overwrites a page data document.
 func (db *Storage) SavePageData(data PageData) error {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
@@ -44,7 +44,7 @@ func (db *Storage) SavePageData(data PageData) error {
 	return nil
 }
 
-// FetchPageData retrieves page data for a specified URL
+// FetchPageData retrieves page data for a specified URL.
 func (db *Storage) FetchPageData(url string) (PageData, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
@@ -59,7 +59,7 @@ func (db *Storage) FetchPageData(url string) (PageData, error) {
 	return retrievedPageData, nil
 }
 
-// PageIsRecentlyCrawled checks if a page was crawled in the last specified time frame (window)
+// PageIsRecentlyCrawled checks if a page was crawled in the last specified time frame (window).
 func (db *Storage) PageIsRecentlyCrawled(url string, window time.Duration) (bool, error) {
 	lastCrawled, err := db.PageLastCrawled(url)
 	if err != nil {
@@ -73,7 +73,7 @@ func (db *Storage) PageIsRecentlyCrawled(url string, window time.Duration) (bool
 	}
 }
 
-// PageLastCrawled returns when a page was last crawled. Error if page doesn't exist
+// PageLastCrawled returns when a page was last crawled. Error if page doesn't exist.
 func (db *Storage) PageLastCrawled(url string) (time.Time, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
