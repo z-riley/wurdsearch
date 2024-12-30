@@ -8,8 +8,8 @@ import (
 	"sync"
 
 	"github.com/rs/zerolog/log"
-	"github.com/z-riley/turdsearch/common/stopwords"
-	"github.com/z-riley/turdsearch/common/store"
+	"github.com/z-riley/wurdsearch/common/stopwords"
+	"github.com/z-riley/wurdsearch/common/store"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

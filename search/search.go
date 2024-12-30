@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"github.com/z-riley/turdsearch/common/lemmatiser"
-	"github.com/z-riley/turdsearch/common/store"
+	"github.com/z-riley/wurdsearch/common/lemmatiser"
+	"github.com/z-riley/wurdsearch/common/store"
 )
 
 type pageData struct {

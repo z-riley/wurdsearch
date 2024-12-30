@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/z-riley/turdsearch/common/store"
+	"github.com/z-riley/wurdsearch/common/store"
 )
 
 func TestSearch(t *testing.T) {
