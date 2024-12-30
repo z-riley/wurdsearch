@@ -1,6 +1,6 @@
-# Turdsearch - The world's worst search engine
+# Wurdsearch - The world's worst search engine
 
-![demo](./docs/turdsearch-demo.gif)
+![demo](./docs/wurdsearch-demo.gif)
 
 ## Usage Instructions
 
@@ -14,6 +14,6 @@
 
 5. Start the frontend: `cd frontend && npm run dev`
 
-6. Visit [http://localhost:5173](http://localhost:5173/) to use Turdsearch!
+6. Visit [http://localhost:5173](http://localhost:5173/) to use Wurdsearch!
 
 ![logo](./frontend/assets/images/android-chrome-192x192.png)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/z-riley/turdsearch/common/store"
+	"github.com/z-riley/wurdsearch/common/store"
 )
 
 // ImportJson imports the contents of a file into a collection

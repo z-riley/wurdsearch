@@ -11,9 +11,9 @@ import (
 
 	"github.com/jimsmart/grobotstxt"
 	"github.com/rs/zerolog/log"
-	"github.com/z-riley/turdsearch/common/store"
-	"github.com/z-riley/turdsearch/crawler/frontier"
-	"github.com/z-riley/turdsearch/crawler/parser"
+	"github.com/z-riley/wurdsearch/common/store"
+	"github.com/z-riley/wurdsearch/crawler/frontier"
+	"github.com/z-riley/wurdsearch/crawler/parser"
 )
 
 var errDepthReached = errors.New("crawl depth reached")

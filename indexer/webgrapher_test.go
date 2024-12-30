@@ -3,7 +3,7 @@ package indexer
 import (
 	"testing"
 
-	"github.com/z-riley/turdsearch/common/store"
+	"github.com/z-riley/wurdsearch/common/store"
 )
 
 func TestGenerateWebgraph(t *testing.T) {

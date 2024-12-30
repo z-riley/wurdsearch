@@ -1,4 +1,4 @@
-module github.com/z-riley/turdsearch
+module github.com/z-riley/wurdsearch
 
 go 1.22.2
 

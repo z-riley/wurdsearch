@@ -3,7 +3,7 @@ package store
 import "time"
 
 const (
-	DatabaseName = "turdsearch"
+	DatabaseName = "wurdsearch"
 
 	CrawledDataCollection     = "crawled_data"
 	CrawledDataTestCollection = "crawled_data_test"

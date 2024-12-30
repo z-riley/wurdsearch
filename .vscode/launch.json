@@ -1,29 +1,29 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Crawler",
-            "type": "go",
-            "request": "launch",
-            "program": "/home/zac/repo/turdsearch/crawler/cmd/main.go",
-            "args": [],
-            "env": {},
-        },
-        {
-            "name": "Indexer",
-            "type": "go",
-            "request": "launch",
-            "program": "/home/zac/repo/turdsearch/indexer/cmd/main.go",
-            "args": [],
-            "env": {},
-        },
-        {
-            "name": "Search server",
-            "type": "go",
-            "request": "launch",
-            "program": "/home/zac/repo/turdsearch/search/cmd/main.go",
-            "args": [],
-            "env": {},
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Crawler",
+      "type": "go",
+      "request": "launch",
+      "program": "/home/zac/repo/wurdsearch/crawler/cmd/main.go",
+      "args": [],
+      "env": {}
+    },
+    {
+      "name": "Indexer",
+      "type": "go",
+      "request": "launch",
+      "program": "/home/zac/repo/wurdsearch/indexer/cmd/main.go",
+      "args": [],
+      "env": {}
+    },
+    {
+      "name": "Search server",
+      "type": "go",
+      "request": "launch",
+      "program": "/home/zac/repo/wurdsearch/search/cmd/main.go",
+      "args": [],
+      "env": {}
+    }
+  ]
 }

@@ -42,7 +42,7 @@ body {
   margin: 0 auto;
   width: 100%;
   padding: 10px;
-  background-color: rgba(248, 248, 248, .9);
+  background-color: rgba(248, 248, 248, 0.9);
   z-index: 10;
 }
 
@@ -62,7 +62,7 @@ body {
   height: 2rem;
 }
 
-turdsearch-search-bar {
+wurdsearch-search-bar {
   width: 100%;
 }
 
@@ -80,13 +80,12 @@ turdsearch-search-bar {
   width: 100%;
   font-weight: var(--bold-font-weight);
   box-shadow: 0 0 0 0 var(--primary-color);
-  transition:
-    box-shadow 200ms ease-in-out;
+  transition: box-shadow 200ms ease-in-out;
 }
 
 .search-bar-input::placeholder {
   color: var(--dark-color);
-  opacity: .3;
+  opacity: 0.3;
 }
 
 .search-bar-input:focus {
@@ -99,12 +98,13 @@ turdsearch-search-bar {
   left: 15px;
   transform: translateY(-50%);
   color: var(--dark-color);
-  opacity: .3;
+  opacity: 0.3;
   font-size: 1.5rem;
   pointer-events: none;
 }
 
-turdsearch-results, footer {
+wurdsearch-results,
+footer {
   display: block;
   max-width: 800px;
   width: 100%;
@@ -125,12 +125,11 @@ turdsearch-results, footer {
   border-radius: 10px;
   outline: 3px solid transparent;
   outline-offset: 3px;
-  transition: 
-    background-color 200ms ease-in-out,
-    outline 100ms ease-in-out;
+  transition: background-color 200ms ease-in-out, outline 100ms ease-in-out;
 }
 
-.result:hover a, .result a:focus {
+.result:hover a,
+.result a:focus {
   background-color: var(--gray-color);
 }
 
@@ -139,22 +138,24 @@ turdsearch-results, footer {
 }
 
 .result .link {
-  font-size: .9rem;
+  font-size: 0.9rem;
 }
 
-.result .title, .result .title>* {
+.result .title,
+.result .title > * {
   color: var(--primary-color);
   font-size: 1.1rem;
 }
 
 .result .extract {
-  opacity: .8;
-  font-size: .9rem;
+  opacity: 0.8;
+  font-size: 0.9rem;
 }
 
-.empty-result, .home {
+.empty-result,
+.home {
   text-align: center;
-  opacity: .5;
+  opacity: 0.5;
   font-weight: var(--bold-font-weight);
 }
 
@@ -167,7 +168,7 @@ footer {
 
 .footer-text {
   text-align: center;
-  opacity: .5;
+  opacity: 0.5;
   font-weight: var(--bold-font-weight);
   margin-bottom: 10px;
 }
@@ -190,8 +191,7 @@ footer {
   border-radius: 10px;
   background-color: var(--gray-color);
   box-shadow: 0 0 0 0 var(--primary-color);
-  transition:
-    box-shadow 200ms ease-in-out;
+  transition: box-shadow 200ms ease-in-out;
 }
 
 .footer-link:hover {
@@ -204,13 +204,13 @@ footer {
   color: inherit;
 }
 
-.footer-link>span {
+.footer-link > span {
   color: inherit;
   font-size: var(--default-font-size);
   font-weight: var(--bold-font-weight);
 }
 
-@media screen and (min-width:576px) {
+@media screen and (min-width: 576px) {
   .brand-title {
     margin: 0 25px 0 15px;
   }

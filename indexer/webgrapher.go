@@ -3,7 +3,7 @@ package indexer
 import (
 	"fmt"
 
-	"github.com/z-riley/turdsearch/common/store"
+	"github.com/z-riley/wurdsearch/common/store"
 )
 
 type Webgrapher struct {

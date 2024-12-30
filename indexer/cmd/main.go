@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"github.com/z-riley/turdsearch/common/logging"
-	"github.com/z-riley/turdsearch/common/store"
-	"github.com/z-riley/turdsearch/indexer"
+	"github.com/z-riley/wurdsearch/common/logging"
+	"github.com/z-riley/wurdsearch/common/store"
+	"github.com/z-riley/wurdsearch/indexer"
 )
 
 func main() {

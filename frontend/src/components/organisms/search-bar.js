@@ -11,7 +11,7 @@ const template = () => /*html*/`
     <input 
       type='search' 
       class='search-bar-input' 
-      placeholder='Search on Turdsearch...' 
+      placeholder='Search on Wurdsearch...' 
       title='Use "CTRL+K" or "/" to focus.'
       autocomplete='off'
     >
@@ -83,9 +83,9 @@ export default define('search-bar', class extends HTMLElement {
   __handleSearch = async () => {
     // Update page title
     if (this.searchInput.value) {
-      document.title = `${this.searchInput.value} - Turdsearch`;
+      document.title = `${this.searchInput.value} - Wurdsearch`;
     } else {
-      document.title = `Turdsearch`;
+      document.title = `Wurdsearch`;
     }
 
     // Update query params

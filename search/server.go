@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/rs/zerolog/log"
-	"github.com/z-riley/turdsearch/common/store"
+	"github.com/z-riley/wurdsearch/common/store"
 )
 
 type Handler struct {
@@ -66,7 +66,7 @@ func (s *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				Title:   []Text{{Value: data.title, IsBold: false}},
 				Extract: []Text{{Value: data.content, IsBold: false}},
 				URL:     data.url,
-				Source:  "Turdsearch",
+				Source:  "Wurdsearch",
 			},
 		)
 	}
