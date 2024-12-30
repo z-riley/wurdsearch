@@ -1,6 +1,6 @@
 # Wurdsearch front-end
 
-A front-end for the Tursearch search engine, ripped off from [github.com/mwmble/front-end](https://github.com/mwmbl/front-end).
+A front-end for the Wurdsearch search engine, ripped off from [github.com/mwmble/front-end](https://github.com/mwmbl/front-end).
 
 ## Local Development
 
