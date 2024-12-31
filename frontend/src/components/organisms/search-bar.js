@@ -143,7 +143,7 @@ export default define('search-bar', class extends HTMLElement {
      * while the user is still typing their query.
      */
     if (!prefersReducedMotion) {
-      this.searchInput.addEventListener('input', debounce(this.__handleSearch, 300))
+      this.searchInput.addEventListener('input', debounce(this.__handleSearch, 500))
     }
 
     // Focus search bar when pressing `ctrl + k` or `/`

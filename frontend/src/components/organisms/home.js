@@ -2,7 +2,7 @@ import define from '../../utils/define.js';
 
 const template = () => /*html*/`
   <h1>
-    The world's worst search engine
+    Search something to get started
   </h1>
 `;
 

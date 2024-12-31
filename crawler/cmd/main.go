@@ -17,7 +17,7 @@ const (
 	20 crawlers: 869 (CPU 100%)
 	*/
 	parallelCrawlers = 10
-	crawlDepth       = 5
+	crawlDepth       = 4
 	crawlGracePeriod = 10 * time.Second
 )
 
@@ -33,7 +33,6 @@ func main() {
 
 	seeds := []string{
 		"https://en.wikipedia.org/wiki/United_Kingdom",
-		"https://www.cnn.com",
 		"https://www.bbc.com/news",
 		"https://www.nytimes.com",
 		"https://www.nature.com",
@@ -41,6 +40,7 @@ func main() {
 		"https://www.newscientist.com",
 		"https://www.bloomberg.com",
 		"https://www.bbc.com/sport",
+		"https://www.grafdom.com/blog/top-20-best-tech-websites-and-blogs/",
 	}
 	if err := c.SetSeeds(seeds); err != nil {
 		log.Fatal().Err(err).Msg("Failed to set seeds")

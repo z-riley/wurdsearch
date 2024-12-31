@@ -1,8 +1,8 @@
-# Wurdsearch - The world's worst search engine
+# Wurdsearch - Search Engine Project
 
-![demo](./docs/wurdsearch-demo.gif)
+![demo](./docs/demo.gif)
 
-## Usage Instructions
+## Usage
 
 1. Make sure MongoDB is [installed](https://www.mongodb.com/docs/manual/installation/) and running on port 27017.
 
@@ -12,8 +12,8 @@
 
 4. Start the backend: `go run search/cmd/main.go`
 
-5. Start the frontend: `cd frontend && npm run dev`
+5. Start the frontend: `cd frontend && npm install && npm run dev`
 
 6. Visit [http://localhost:5173](http://localhost:5173/) to use Wurdsearch!
 
-![logo](./frontend/assets/images/android-chrome-192x192.png)
+![logo](./frontend/assets/images/web-app-manifest-192x192.png)

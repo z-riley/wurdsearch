@@ -14,7 +14,7 @@ const (
 	WordIndexCollection     = "word_index"
 	WordIndexTestCollection = "word_index_test"
 
-	requestTimeout = 3 * time.Second
+	requestTimeout = 5 * time.Second
 	connectionPool = 800 // manually tuned for best results
 )
 
